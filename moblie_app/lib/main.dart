@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'FoodMenu.dart';
 
 void main() {
   // print("Hello world");
@@ -26,42 +27,32 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int number = 0;
+  List<FoodMenu> menu = [
+    FoodMenu("ice cream", "50", "assets/images/ice cream.jpg"),
+    FoodMenu("water", "10", "assets/images/water.jpg")
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Modern-CSS v.1"),
-      ),
-      body: Center(
-        child: ListView(children: getData(20)
-            // Text("กดปุ่มเพื่อเพิ่มจำนวน"),
-            // Image(
-            //     image: NetworkImage(
-            //         "https://i.natgeofe.com/n/46b07b5e-1264-42e1-ae4b-8a021226e2d0/domestic-cat_thumb_square.jpg")),
-            ),
-      ),
-    );
-  }
-
-  List<Widget> getData(int count) {
-    List<Widget> data = [];
-    for (int i = 0; i < count; i++) {
-      var num = ListTile(
-          title: Text(
-            "$i",
-            style: TextStyle(fontSize: 25),
-          ),
-          subtitle: Text("${i + 1}"));
-      data.add(num);
-    }
-    return data;
-  }
-
-  void addNumber() {
-    setState(() {
-      number++;
-    });
+        appBar: AppBar(
+          title: Text("Modern-CSS v.1"),
+        ),
+        body: ListView.builder(
+            itemCount: menu.length,
+            itemBuilder: (BuildContext context, int index) {
+              FoodMenu foods = menu[index];
+              return ListTile(
+                leading: Image.asset(foods.img),
+                title: Text(
+                  foods.name,
+                  style: TextStyle(fontSize: 25),
+                ),
+                subtitle: Text("price: " + foods.price),
+                onTap: () {
+                  print("Menu is " + foods.name);
+                },
+              );
+            }),);
   }
 }
