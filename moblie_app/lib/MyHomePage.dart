@@ -99,8 +99,17 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _cropImage(filePath) async {
-    File? croppedFile = await ImageCropper()
-        .cropImage(sourcePath: filePath, maxHeight: 1080, maxWidth: 1080);
+    File? croppedFile = await ImageCropper().cropImage(
+        sourcePath: filePath,
+        maxHeight: 1080,
+        maxWidth: 1080,
+        aspectRatioPresets: [
+          CropAspectRatioPreset.ratio4x3,
+        ],
+        androidUiSettings: AndroidUiSettings(
+          cropGridRowCount: 8,
+          cropGridColumnCount: 12,
+        ));
     if (croppedFile != null) {
       setState(() {
         imageFile = croppedFile;
@@ -160,60 +169,77 @@ class _MyHomePageState extends State<MyHomePage> {
                   height: 20,
                 ),
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(
-                    "Image :",
-                    style: headerText,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Image :",
+                        style: headerText,
+                      ),
+                      Spacer(),
+                      imageFile == null
+                          ? ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                textStyle: normalText,
+                              ),
+                              onPressed: _showImageDialog,
+                              child: Text(
+                                "Select image",
+                              ),
+                            )
+                          : ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  textStyle: normalText),
+                              onPressed: _showImageDialog,
+                              child: Text(
+                                "Change image",
+                              ),
+                            )
+                    ],
                   ),
                   imageFile == null
-                      ?
-                      // Container(
-                      //     child: Center(
-                      //         child:
-                      //             Text("No image selected", style: normalText)),
-                      //     decoration: BoxDecoration(
-                      //         border: Border.all(color: Colors.grey),
-                      //         borderRadius:
-                      //             BorderRadius.all(Radius.circular(10))),
-                      //     width: MediaQuery.of(context).size.width,
-                      //     height: 240,
-                      //   )
-                      SizedBox(
-                          child: GridView.count(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          crossAxisCount: 12,
-                          // childAspectRatio: 0.67,
-                          children: List.generate(
-                              96,
-                              (index) => Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.grey),
-                                    ),
-                                  )),
-                        ))
-                      : Container(
-                          child: GestureDetector(
-                            // onTap: () {
-                            //   _showImageDialog();
-                            // },
-                            child: Image.file(
-                              imageFile!,
-                              semanticLabel: "96-well plates",
+                      ? Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            child: Center(
+                                child: Text("No image selected",
+                                    style: normalText)),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                            ),
+                            width: MediaQuery.of(context).size.width, //360
+                            height: 270,
+                          ),
+                        )
+                      // SizedBox(
+                      //     child: GridView.count(
+                      //     shrinkWrap: true,
+                      //     physics: NeverScrollableScrollPhysics(),
+                      //     crossAxisCount: 12,
+                      //     // childAspectRatio: 0.67,
+                      //     children: List.generate(
+                      //         96,
+                      //         (index) => Container(
+                      //               decoration: BoxDecoration(
+                      //                 border: Border.all(color: Colors.grey),
+                      //               ),
+                      //             )),
+                      //   ))
+                      : Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            child: GestureDetector(
+                              // onTap: () {
+                              //   _showImageDialog();
+                              // },
+                              child: Image.file(
+                                imageFile!,
+                                semanticLabel: "96-well plates",
+                              ),
                             ),
                           ),
                         )
                 ]),
-                imageFile == null
-                    ? ElevatedButton(
-                        style: ElevatedButton.styleFrom(textStyle: normalText),
-                        onPressed: _showImageDialog,
-                        child: Text("Select image"),
-                      )
-                    : ElevatedButton(
-                        style: ElevatedButton.styleFrom(textStyle: normalText),
-                        onPressed: _showImageDialog,
-                        child: Text("Change image"),
-                      )
               ]),
             ),
           ),
