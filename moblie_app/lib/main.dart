@@ -27,23 +27,31 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  int number = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    print("use init State");
+  }
+
   @override
   Widget build(BuildContext context) {
+    print("use build State");
     return Scaffold(
       appBar: AppBar(
         title: Text("Modern-CSS v.1"),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            MoneyBox("expense", 100000.759, Colors.redAccent, 100),
-            SizedBox(height: 10),
-            MoneyBox("revenue", 10000, Colors.greenAccent, 100),
-            SizedBox(height: 10),
-            MoneyBox("balance", 1000000.485, Colors.yellow, 120),
-          ],
-        ),
+      body: Column(
+        children: [Text("Message $number")],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() {
+            number++;
+          });
+        },
+        child: Icon(Icons.add),
       ),
     );
   }
