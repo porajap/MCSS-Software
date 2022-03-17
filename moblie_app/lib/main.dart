@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'FoodMenu.dart';
+import 'MoneyBox.dart';
 
 void main() {
   // print("Hello world");
@@ -27,32 +27,24 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<FoodMenu> menu = [
-    FoodMenu("ice cream", "50", "assets/images/ice cream.jpg"),
-    FoodMenu("water", "10", "assets/images/water.jpg")
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Modern-CSS v.1"),
+      appBar: AppBar(
+        title: Text("Modern-CSS v.1"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            MoneyBox("expense", 100000.759, Colors.redAccent, 100),
+            SizedBox(height: 10),
+            MoneyBox("revenue", 10000, Colors.greenAccent, 100),
+            SizedBox(height: 10),
+            MoneyBox("balance", 1000000.485, Colors.yellow, 120),
+          ],
         ),
-        body: ListView.builder(
-            itemCount: menu.length,
-            itemBuilder: (BuildContext context, int index) {
-              FoodMenu foods = menu[index];
-              return ListTile(
-                leading: Image.asset(foods.img),
-                title: Text(
-                  foods.name,
-                  style: TextStyle(fontSize: 25),
-                ),
-                subtitle: Text("price: " + foods.price),
-                onTap: () {
-                  print("Menu is " + foods.name);
-                },
-              );
-            }),);
+      ),
+    );
   }
 }
