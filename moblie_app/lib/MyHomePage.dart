@@ -1,9 +1,20 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
+import 'ReportPage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class ReportParameter {
+  String elevation;
+  String name;
+  List<Color> color;
+  List<double> concentrate;
+
+  ReportParameter(this.elevation, this.name, this.color, this.concentrate);
+}
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -13,6 +24,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final TextEditingController reportName = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -21,6 +34,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   String dropdownValue = "Phosphate";
   File? imageFile;
+  File? _image;
+  // late ReportParameter report;
 
   static const normalText = TextStyle(color: Colors.black, fontSize: 20);
   static const headerText =
@@ -110,11 +125,23 @@ class _MyHomePageState extends State<MyHomePage> {
           cropGridRowCount: 8,
           cropGridColumnCount: 12,
         ));
+
     if (croppedFile != null) {
+      _saveImage();
       setState(() {
         imageFile = croppedFile;
       });
     }
+  }
+
+  Future _saveImage() async {
+    Directory imagePath = await getApplicationDocumentsDirectory();
+    String path = imagePath.path;
+    File newImage = await imageFile!.copy('$path/image1.png');
+    setState(() {
+      _image = newImage;
+    });
+    print(_image);
   }
 
   @override
@@ -122,22 +149,40 @@ class _MyHomePageState extends State<MyHomePage> {
     // print("use build State");
 
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Modern-CSS v.1"),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Container(
+      appBar: AppBar(
+        title: Text("Modern-CSS v.1"),
+      ),
+      body: Column(
+        // mainAxisSize: MainAxisSize.max,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Center(
               child:
                   Column(mainAxisAlignment: MainAxisAlignment.start, children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Constructure :", style: headerText),
+                    Text("Report Name :", style: headerText),
+                    TextFormField(
+                      controller: reportName,
+                      onChanged: (context) => {
+                        print(context),
+                        //  report.name = reportName.toString()
+                      },
+                      decoration: InputDecoration(
+                          hintText: "Report name...",
+                          enabledBorder: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10))),
+                          focusedBorder: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)))),
+                      style: normalText,
+                    ),
+                    Text("Evaluate Profile :", style: headerText),
                     InputDecorator(
                         decoration: InputDecoration(
-                            // labelText: "Constructure",
                             alignLabelWithHint: true,
                             border: OutlineInputBorder(
                                 borderRadius:
@@ -151,12 +196,22 @@ class _MyHomePageState extends State<MyHomePage> {
                           elevation: 16,
                           style: normalText,
                           onChanged: (String? newValue) {
+                            // report.elevation = dropdownValue;
                             setState(() {
                               dropdownValue = newValue!;
                             });
+                            print(dropdownValue);
                           },
-                          items: ['Phosphate', 'Nitrate', 'Tree', 'Four']
-                              .map<DropdownMenuItem<String>>((String value) {
+                          items: [
+                            'Phosphate',
+                            'Nitrate',
+                            'Potassium',
+                            'Blue_2',
+                            'FE1',
+                            'Dye3',
+                            'Blue',
+                            'S1_2'
+                          ].map<DropdownMenuItem<String>>((String value) {
                             return DropdownMenuItem<String>(
                               value: value,
                               child: Text(value),
@@ -184,7 +239,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                               onPressed: _showImageDialog,
                               child: Text(
-                                "Select image",
+                                "Browse image",
                               ),
                             )
                           : ElevatedButton(
@@ -197,52 +252,118 @@ class _MyHomePageState extends State<MyHomePage> {
                             )
                     ],
                   ),
-                  imageFile == null
-                      ? Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Container(
-                            child: Center(
-                                child: Text("No image selected",
-                                    style: normalText)),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                            ),
-                            width: MediaQuery.of(context).size.width, //360
-                            height: 270,
+                  Container(
+                      constraints: BoxConstraints(
+                        maxWidth: MediaQuery.of(context).size.width,
+                        // maxWidth: 300,
+                        // maxHeight: MediaQuery.of(context).size.height,
+                        maxHeight: 250,
+                      ),
+                      decoration: BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          border: Border.all(
+                            color: Colors.black,
                           ),
-                        )
-                      // SizedBox(
-                      //     child: GridView.count(
-                      //     shrinkWrap: true,
-                      //     physics: NeverScrollableScrollPhysics(),
-                      //     crossAxisCount: 12,
-                      //     // childAspectRatio: 0.67,
-                      //     children: List.generate(
-                      //         96,
-                      //         (index) => Container(
-                      //               decoration: BoxDecoration(
-                      //                 border: Border.all(color: Colors.grey),
-                      //               ),
-                      //             )),
-                      //   ))
-                      : Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Container(
-                            child: GestureDetector(
-                              // onTap: () {
-                              //   _showImageDialog();
-                              // },
-                              child: Image.file(
-                                imageFile!,
-                                semanticLabel: "96-well plates",
-                              ),
-                            ),
+                          // image: imageFile != null
+                          //     ? DecorationImage(image: FileImage(imageFile!))
+                          //     : DecorationImage(
+                          //         image:
+                          //             AssetImage('assets/images/water.jpg'))
                           ),
-                        )
+                      child:
+                          Stack(
+                            children: [
+                              imageFile != null
+                                  ? Image.file(imageFile!,
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      semanticLabel: "96-well plates",
+                                      fit: BoxFit.fitHeight)
+                                  : Center(
+                                      child: Text(
+                                        "No image selected",
+                                        style: normalText,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      widthFactor: double.infinity,
+                                      heightFactor: double.infinity,
+                                    ),
+                          GridView.count(
+                        shrinkWrap: true,
+                        // physics: NeverScrollableScrollPhysics(),
+                        crossAxisCount: 12,
+                        // childAspectRatio: 0.67,
+                        children: List.generate(
+                            96,
+                            (index) => Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey),
+                                  ),
+                                )),
+                      )
+                        ],
+                      ),
+                      ),
                 ]),
+
+                //   child: Center(
+                //       child: Text("No image selected",
+                //           style: normalText)),
+                //   decoration: BoxDecoration(
+                //     border: Border.all(color: Colors.grey),
+                //   ),
+                //   width: MediaQuery.of(context).size.width, //360
+                //   height: 270,
+                // ),
+                // )
+                // SizedBox(
+                //     child: GridView.count(
+                //     shrinkWrap: true,
+                //     physics: NeverScrollableScrollPhysics(),
+                //     crossAxisCount: 12,
+                //     // childAspectRatio: 0.67,
+                //     children: List.generate(
+                //         96,
+                //         (index) => Container(
+                //               decoration: BoxDecoration(
+                //                 border: Border.all(color: Colors.grey),
+                //               ),
+                //             )),
+                //   ))
+                // : Padding(
+                //     padding: const EdgeInsets.all(8.0),
+                //     child: Container(
+                //       child: GestureDetector(
+                //         // onTap: () {
+                //         //   _showImageDialog();
+                //         // },
+                //         child: Image.file(
+                //           imageFile!,
+                //           semanticLabel: "96-well plates",
+                //         ),
+                //       ),
+                //     ),
+                //   )
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    textStyle: normalText,
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                ReportPage(imageFile: _image)));
+                  },
+                  child: Text(
+                    "Analyze",
+                  ),
+                ),
               ]),
             ),
           ),
-        ));
+        ],
+      ),
+    );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'MyHomePage.dart';
+import 'test.dart';
 
 void main() {
   // print("Hello world");
@@ -14,7 +15,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "modern-css",
       home: MyHomePage(),
-      theme: ThemeData(primaryColor: Colors.purple.shade600),
+      theme: ThemeData(primarySwatch: Colors.purple),
     );
   }
 }
+
