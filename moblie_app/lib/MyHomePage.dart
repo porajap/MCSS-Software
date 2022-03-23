@@ -122,8 +122,8 @@ class _MyHomePageState extends State<MyHomePage> {
           CropAspectRatioPreset.ratio4x3,
         ],
         androidUiSettings: AndroidUiSettings(
-          cropGridRowCount: 8,
-          cropGridColumnCount: 12,
+          cropGridRowCount: 7,
+          cropGridColumnCount: 11,
         ));
 
     if (croppedFile != null) {
@@ -142,6 +142,73 @@ class _MyHomePageState extends State<MyHomePage> {
       _image = newImage;
     });
     print(_image);
+  }
+
+  Widget _checkBox(String evaluate, int index) {
+    Widget? isIcon;
+    Map<int, String> label = {
+      2: '1',
+      3: '2',
+      4: '3',
+      5: '4',
+      6: '5',
+      7: '6',
+      8: '7',
+      9: '8',
+      10: '9',
+      11: '10',
+      12: '11',
+      13: '12',
+      14: 'A',
+      27: 'B',
+      40: 'C',
+      53: 'D',
+      66: 'E',
+      79: 'F',
+      92: 'G',
+      105: 'H'
+    };
+    List<int> standard = [14, 15, 16, 17, 18, 26, 27, 28, 29, 30];
+    List<int> sample = [];
+    var row1 = List.generate(10, (index) => index + 38);
+    var row2 = List.generate(10, (index) => index + 50);
+    var row3 = List.generate(10, (index) => index + 62);
+    var row4 = List.generate(10, (index) => index + 74);
+    sample = row1 + row2 + row3 + row4;
+    // if (label.containsKey(index)) {
+    //   return Container(
+    //     alignment: Alignment.center,
+    //     // decoration: BoxDecoration(
+    //     //   border: Border.all(color: Colors.grey),
+    //     // ),
+    //     child: Text(label[index]!),
+    //   );
+    // }
+    if (evaluate == 'Phosphate' ||
+        evaluate == 'Nitrate' ||
+        evaluate == 'Potassium') {
+      //standard
+      if (standard.contains(index)) {
+        isIcon = Icon(
+          Icons.check_circle_outline_outlined,
+          color: Colors.green,
+        );
+      }
+      //sample
+      if (sample.contains(index)) {
+        isIcon = Icon(
+          Icons.check_circle_outline_outlined,
+          color: Colors.red,
+        );
+      }
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+      ),
+      child: isIcon,
+    );
   }
 
   @override
@@ -253,57 +320,51 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                   Container(
-                      constraints: BoxConstraints(
-                        maxWidth: MediaQuery.of(context).size.width,
-                        // maxWidth: 300,
-                        // maxHeight: MediaQuery.of(context).size.height,
-                        maxHeight: 250,
-                      ),
-                      decoration: BoxDecoration(
-                          shape: BoxShape.rectangle,
-                          border: Border.all(
-                            color: Colors.black,
-                          ),
-                          // image: imageFile != null
-                          //     ? DecorationImage(image: FileImage(imageFile!))
-                          //     : DecorationImage(
-                          //         image:
-                          //             AssetImage('assets/images/water.jpg'))
-                          ),
-                      child:
-                          Stack(
-                            children: [
-                              imageFile != null
-                                  ? Image.file(imageFile!,
-                                      width: double.infinity,
-                                      height: double.infinity,
-                                      semanticLabel: "96-well plates",
-                                      fit: BoxFit.fitHeight)
-                                  : Center(
-                                      child: Text(
-                                        "No image selected",
-                                        style: normalText,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      widthFactor: double.infinity,
-                                      heightFactor: double.infinity,
-                                    ),
-                          GridView.count(
-                        shrinkWrap: true,
-                        // physics: NeverScrollableScrollPhysics(),
-                        crossAxisCount: 12,
-                        // childAspectRatio: 0.67,
-                        children: List.generate(
-                            96,
-                            (index) => Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey),
-                                  ),
-                                )),
-                      )
-                        ],
-                      ),
-                      ),
+                    constraints: BoxConstraints(
+                      maxWidth: MediaQuery.of(context).size.width,
+                      // maxWidth: 300,
+                      // maxHeight: MediaQuery.of(context).size.height,
+                      maxHeight: 252,
+                    ),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      // border: Border.all(
+                      //   color: Colors.black,
+                      // ),
+                      // image: imageFile != null
+                      //     ? DecorationImage(image: FileImage(imageFile!))
+                      //     : DecorationImage(
+                      //         image:
+                      //             AssetImage('assets/images/water.jpg'))
+                    ),
+                    child: Stack(
+                      children: [
+                        imageFile != null
+                            ? Image.file(imageFile!,
+                                width: double.infinity,
+                                height: double.infinity,
+                                semanticLabel: "96-well plates",
+                                fit: BoxFit.fill)
+                            : Center(
+                                child: Text(
+                                  "No image selected",
+                                  style: normalText,
+                                  textAlign: TextAlign.center,
+                                ),
+                                widthFactor: double.infinity,
+                                heightFactor: double.infinity,
+                              ),
+                        GridView.count(
+                          shrinkWrap: true,
+                          // physics: NeverScrollableScrollPhysics(),
+                          crossAxisCount: 12,
+                          // childAspectRatio: 0.67,
+                          children: List.generate(96,
+                              (index) => _checkBox(dropdownValue, index + 1)),
+                        )
+                      ],
+                    ),
+                  ),
                 ]),
 
                 //   child: Center(

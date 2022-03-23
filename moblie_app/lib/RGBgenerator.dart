@@ -74,28 +74,47 @@ List<Color> extractPixelsColors(Uint8List? bytes) {
 
   print('w: $width, h: $height');
 
-  int xChunk = width! ~/ (noOfPixelsPerAxisX + 1);
-  int yChunk = height! ~/ (noOfPixelsPerAxisY + 1);
+  int xChunk = width! ~/ (noOfPixelsPerAxisX);
+  int yChunk = height! ~/ (noOfPixelsPerAxisY);
+
+  int xChunk2 = xChunk + 1;
+  int yChunk2 = yChunk + 1;
+
+  int midX = xChunk ~/ 2;
+  int midY = yChunk ~/ 2;
+  // print(midX);
+  // print(midY);
 
   for (int j = 1; j < noOfPixelsPerAxisY + 1; j++) {
     for (int i = 1; i < noOfPixelsPerAxisX + 1; i++) {
-      int? pixel = image?.getPixel(xChunk * i, yChunk * j);
+      int? pixel;
+      if (i > 4 || j > 6) {
+        pixel = image?.getPixel(xChunk2 * i - midX, yChunk2 * j - midY);
+      } else {
+        pixel = image?.getPixel(xChunk * i - midX, yChunk * j - midY);
+      }
+
       pixels.add(pixel);
       Color c = abgrToColor(pixel!);
-      int red = c.red;
-      int green = c.green;
-      int blue = c.blue;
-      print('R: $red, G: $green, B: $blue');
       colors.add(c);
     }
   }
-  print(colors.length);
+  // print(colors.length);
+
   return colors;
 }
 
-void _getRGB(Color c) {
-  int red = c.red;
-  int green = c.green;
-  int blue = c.blue;
-  print('R: $red, G: $green, B: $blue');
+List<int> getColorValue(List<Color> c, String color) {
+  List<int> value = [];
+
+  if (color == 'red') {
+    c.forEach((c) => value.add(c.red));
+  }
+  if (color == 'green') {
+    c.forEach((c) => value.add(c.green));
+  }
+  if (color == 'blue') {
+    c.forEach((c) => value.add(c.blue));
+  }
+  return value;
 }

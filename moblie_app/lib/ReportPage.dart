@@ -8,7 +8,7 @@ import 'dart:typed_data';
 import 'package:flutter_launcher_icons/utils.dart';
 import 'package:image_picker/image_picker.dart';
 
-import 'generator.dart';
+import 'RGBgenerator.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -48,33 +48,29 @@ class ReportPage extends StatefulWidget {
   State<ReportPage> createState() => _ReportPageState();
 }
 
-final List<String> photos = [
-  photo1,
-];
-
-final String photo1 =
-    'https://www.rd.com/wp-content/uploads/2021/01/GettyImages-870161590-copy.jpg?resize=2048,1499';
-
-String photo = photo1;
-
 int noOfPaletteColors = 4;
+String photo = '';
 
 class _ReportPageState extends State<ReportPage> {
   List<Color> colors = [];
-  List<Color> sortedColors = [];
-  List<Color> palette = [];
+  List<int> red = [];
+  List<int> green = [];
+  List<int> blue = [];
 
-  Color primary = Colors.blueGrey;
-  Color primaryText = Colors.black;
-  Color background = Colors.white;
+  // List<Color> sortedColors = [];
+  // List<Color> palette = [];
 
-  late Random random;
+  // Color primary = Colors.blueGrey;
+  // Color primaryText = Colors.black;
+  // Color background = Colors.white;
+
+  // late Random random;
   Uint8List? imageBytes;
 
   @override
   void initState() {
     super.initState();
-    random = Random();
+    // random = Random();
     extractColors();
     // print(widget.imageFile);
   }
@@ -82,10 +78,8 @@ class _ReportPageState extends State<ReportPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: background,
       key: UniqueKey(),
       appBar: AppBar(
-        backgroundColor: primary,
         actions: [
           IconButton(
               onPressed: () {
@@ -94,24 +88,23 @@ class _ReportPageState extends State<ReportPage> {
               icon: Icon(Icons.refresh))
         ],
         title: Text(
-          'Coloring',
-          style: TextStyle(color: primaryText, letterSpacing: 1),
+          'Report',
         ),
       ),
       body: Container(
-        decoration: BoxDecoration(
-            gradient: palette.isEmpty
-                ? null
-                : LinearGradient(
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                    stops: [0.01, 0.6, 1],
-                    colors: [
-                      palette.first.withOpacity(0.3),
-                      palette[palette.length ~/ 2],
-                      palette.last.withOpacity(0.9),
-                    ],
-                  )),
+        // decoration: BoxDecoration(
+        //     gradient: palette.isEmpty
+        //         ? null
+        //         : LinearGradient(
+        //             begin: Alignment.bottomCenter,
+        //             end: Alignment.topCenter,
+        //             stops: [0.01, 0.6, 1],
+        //             colors: [
+        //               palette.first.withOpacity(0.3),
+        //               palette[palette.length ~/ 2],
+        //               palette.last.withOpacity(0.9),
+        //             ],
+        //           )),
         child: ListView(
           children: [
             SizedBox(
@@ -138,13 +131,13 @@ class _ReportPageState extends State<ReportPage> {
 
   Future<void> extractColors() async {
     colors = [];
-    sortedColors = [];
-    palette = [];
+    // sortedColors = [];
+    // palette = [];
     imageBytes = null;
 
     setState(() {});
 
-    noOfPaletteColors = random.nextInt(4) + 2;
+    // noOfPaletteColors = random.nextInt(4) + 2;
     // photo = photos[random.nextInt(photos.length)];
 
     // imageBytes = (await NetworkAssetBundle(Uri.parse(photo)).load(photo))
@@ -154,16 +147,22 @@ class _ReportPageState extends State<ReportPage> {
     imageBytes = await _readFileByte(widget.imageFile);
     // print(imageBytes);
     colors = await compute(extractPixelsColors, imageBytes);
+    red = getColorValue(colors, 'red');
+    green = getColorValue(colors, 'green');
+    blue = getColorValue(colors, 'blue');
     setState(() {});
+    // sortedColors = await compute(sortColors, colors);
+    // setState(() {});
+    // palette = await compute(
+    //     generatePalette, {keyPalette: colors, keyNoOfItems: noOfPaletteColors});
+    // primary = palette.last;
+    // primaryText = palette.first;
+    // background = palette.first.withOpacity(0.5);
+    // setState(() {});
 
-    sortedColors = await compute(sortColors, colors);
-    setState(() {});
-    palette = await compute(
-        generatePalette, {keyPalette: colors, keyNoOfItems: noOfPaletteColors});
-    primary = palette.last;
-    primaryText = palette.first;
-    background = palette.first.withOpacity(0.5);
-    setState(() {});
+    print(red);
+    print(green);
+    print(blue);
   }
 
   Widget _getGrids() {
@@ -183,9 +182,7 @@ class _ReportPageState extends State<ReportPage> {
                     children: [
                       Text(
                         'Extracted Pixels',
-                        style: TextStyle(
-                            color:
-                                palette.isEmpty ? Colors.black : palette.first),
+                        style: TextStyle(color: Colors.black),
                       ),
                       SizedBox(height: 10),
                       GridView.builder(
@@ -213,35 +210,34 @@ class _ReportPageState extends State<ReportPage> {
     );
   }
 
-  Widget _getPalette() {
-    return SizedBox(
-      height: 50,
-      child: palette.isEmpty
-          ? Container(
-              child: CircularProgressIndicator(),
-              alignment: Alignment.center,
-              height: 100,
-            )
-          : ListView.builder(
-              shrinkWrap: true,
-              scrollDirection: Axis.horizontal,
-              itemCount: palette.length,
-              itemBuilder: (BuildContext context, int index) => Container(
-                color: palette[index],
-                height: 50,
-                width: 50,
-              ),
-            ),
-    );
-  }
+  // Widget _getPalette() {
+  //   return SizedBox(
+  //     height: 50,
+  //     child: palette.isEmpty
+  //         ? Container(
+  //             child: CircularProgressIndicator(),
+  //             alignment: Alignment.center,
+  //             height: 100,
+  //           )
+  //         : ListView.builder(
+  //             shrinkWrap: true,
+  //             scrollDirection: Axis.horizontal,
+  //             itemCount: palette.length,
+  //             itemBuilder: (BuildContext context, int index) => Container(
+  //               color: palette[index],
+  //               height: 50,
+  //               width: 50,
+  //             ),
+  //           ),
+  //   );
+  // }
 
   Future<Uint8List> _readFileByte(File? filePath) async {
     // Uri myUri = Uri.parse(filePath);
     // File audioFile = new File.fromUri(myUri);
     File audioFile = filePath!;
-    Uint8List bytes = (await NetworkAssetBundle(Uri.parse(photo)).load(photo))
-        .buffer
-        .asUint8List();
+    Uint8List bytes =
+        (await rootBundle.load('assets/images/water.jpg')).buffer.asUint8List();
     await audioFile.readAsBytes().then((value) {
       bytes = Uint8List.fromList(value);
       print('reading of bytes is completed');
