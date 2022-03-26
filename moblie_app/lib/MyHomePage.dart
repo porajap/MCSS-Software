@@ -1,20 +1,13 @@
 import 'dart:io';
 
+import 'package:moblie_app/ReportInfo.dart';
+
 import 'ReportPage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-class ReportParameter {
-  String elevation;
-  String name;
-  List<Color> color;
-  List<double> concentrate;
-
-  ReportParameter(this.elevation, this.name, this.color, this.concentrate);
-}
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -25,17 +18,16 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController reportName = TextEditingController();
+  String dropdownValue = "Phosphate";
+  File? imageFile;
+  File? _image;
+  var report = ReportInfo();
 
   @override
   void initState() {
     super.initState();
-    // print("use init State");
+    report.evaluate = dropdownValue;
   }
-
-  String dropdownValue = "Phosphate";
-  File? imageFile;
-  File? _image;
-  // late ReportParameter report;
 
   static const normalText = TextStyle(color: Colors.black, fontSize: 20);
   static const headerText =
@@ -119,7 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
         maxHeight: 1080,
         maxWidth: 1080,
         aspectRatioPresets: [
-          CropAspectRatioPreset.ratio4x3,
+          CropAspectRatioPreset.original,
         ],
         androidUiSettings: AndroidUiSettings(
           cropGridRowCount: 7,
@@ -233,10 +225,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     Text("Report Name :", style: headerText),
                     TextFormField(
                       controller: reportName,
-                      onChanged: (context) => {
-                        print(context),
-                        //  report.name = reportName.toString()
-                      },
+                      onChanged: (context) => {print(context)},
                       decoration: InputDecoration(
                           hintText: "Report name...",
                           enabledBorder: OutlineInputBorder(
@@ -257,17 +246,19 @@ class _MyHomePageState extends State<MyHomePage> {
                             contentPadding: EdgeInsets.all(8)),
                         child: DropdownButtonHideUnderline(
                             child: DropdownButton<String>(
+                          disabledHint: Text('Choose...'),
                           value: dropdownValue,
                           icon: const Icon(Icons.arrow_drop_down),
                           isExpanded: true,
                           elevation: 16,
                           style: normalText,
                           onChanged: (String? newValue) {
-                            // report.elevation = dropdownValue;
                             setState(() {
                               dropdownValue = newValue!;
+                              report.name = reportName.text.toString();
+                              report.evaluate = dropdownValue;
                             });
-                            print(dropdownValue);
+                            // print(report.evaluate);
                           },
                           items: [
                             'Phosphate',
@@ -413,8 +404,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (BuildContext context) =>
-                                ReportPage(imageFile: _image)));
+                            builder: (BuildContext context) => ReportPage(
+                                  imageFile: _image,
+                                  report: report,
+                                )));
                   },
                   child: Text(
                     "Analyze",

@@ -1,78 +1,47 @@
 import 'dart:io';
 import 'dart:ui';
 import 'dart:typed_data';
-
 import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter_launcher_icons/utils.dart';
 import 'package:image_picker/image_picker.dart';
-
-import 'RGBgenerator.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:moblie_app/ReportInfo.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 
-void _printRGB() async {
-  final Uint8List inputImg =
-      (await rootBundle.load("assets/images/water.jpg")).buffer.asUint8List();
-  // final decoder = imageLib.JpegDecoder();
-  // imageLib.Image? decodedImg = decoder.decodeImage(inputImg);
-  // final decodedBytes = decodedImg?.getBytes(format: imageLib.Format.rgb);
-  // // imageLib.Image? decodedImage;
-  // // print(decodedImage);
-  // int? width = decodedImg?.width;
-  // int? height = decodedImg?.height;
-
-  // print(decodedImg);
-
-  // List<List<List<int>>> imgArr = [];
-  // for (int y = 0; y < height!; y++) {
-  //   imgArr.add([]);
-  //   for (int x = 0; x < width!; x++) {
-  //     int red = decodedBytes![(y * width * 3) + x * 3];
-  //     int green = decodedBytes[(y * width * 3 + x * 3) + 1];
-  //     int blue = decodedBytes[y * width * 3 + x * 3 + 2];
-  //     imgArr[y].add([red, green, blue]);
-  //   }
-  // }
-  // return print(imgArr);
-}
+import 'RGBgenerator.dart';
+import 'Graphgenerator.dart';
 
 class ReportPage extends StatefulWidget {
   final File? imageFile;
-  ReportPage({this.imageFile});
+  ReportInfo report;
+  ReportPage({this.imageFile, required this.report});
   // const ReportPage({Key? key}) : super(key: key);
 
   @override
   State<ReportPage> createState() => _ReportPageState();
 }
 
-int noOfPaletteColors = 4;
-String photo = '';
-
 class _ReportPageState extends State<ReportPage> {
   List<Color> colors = [];
   List<int> red = [];
   List<int> green = [];
   List<int> blue = [];
+  Set<Object> result = {};
+  // ReportInfo report = widget.report;
 
-  // List<Color> sortedColors = [];
-  // List<Color> palette = [];
-
-  // Color primary = Colors.blueGrey;
-  // Color primaryText = Colors.black;
-  // Color background = Colors.white;
-
-  // late Random random;
   Uint8List? imageBytes;
 
   @override
   void initState() {
     super.initState();
-    // random = Random();
     extractColors();
     // print(widget.imageFile);
+    // print(widget.report.evaluate);
   }
 
   @override
@@ -131,18 +100,9 @@ class _ReportPageState extends State<ReportPage> {
 
   Future<void> extractColors() async {
     colors = [];
-    // sortedColors = [];
-    // palette = [];
     imageBytes = null;
 
     setState(() {});
-
-    // noOfPaletteColors = random.nextInt(4) + 2;
-    // photo = photos[random.nextInt(photos.length)];
-
-    // imageBytes = (await NetworkAssetBundle(Uri.parse(photo)).load(photo))
-    //     .buffer
-    //     .asUint8List();
 
     imageBytes = await _readFileByte(widget.imageFile);
     // print(imageBytes);
@@ -150,19 +110,15 @@ class _ReportPageState extends State<ReportPage> {
     red = getColorValue(colors, 'red');
     green = getColorValue(colors, 'green');
     blue = getColorValue(colors, 'blue');
-    setState(() {});
-    // sortedColors = await compute(sortColors, colors);
-    // setState(() {});
-    // palette = await compute(
-    //     generatePalette, {keyPalette: colors, keyNoOfItems: noOfPaletteColors});
-    // primary = palette.last;
-    // primaryText = palette.first;
-    // background = palette.first.withOpacity(0.5);
-    // setState(() {});
 
-    print(red);
-    print(green);
-    print(blue);
+    widget.report.red = red;
+    widget.report.green = green;
+    widget.report.blue = blue;
+    setState(() {});
+    calGraph();
+    // print(widget.report.red);
+    // print(green);
+    // print(blue);
   }
 
   Widget _getGrids() {
@@ -210,28 +166,6 @@ class _ReportPageState extends State<ReportPage> {
     );
   }
 
-  // Widget _getPalette() {
-  //   return SizedBox(
-  //     height: 50,
-  //     child: palette.isEmpty
-  //         ? Container(
-  //             child: CircularProgressIndicator(),
-  //             alignment: Alignment.center,
-  //             height: 100,
-  //           )
-  //         : ListView.builder(
-  //             shrinkWrap: true,
-  //             scrollDirection: Axis.horizontal,
-  //             itemCount: palette.length,
-  //             itemBuilder: (BuildContext context, int index) => Container(
-  //               color: palette[index],
-  //               height: 50,
-  //               width: 50,
-  //             ),
-  //           ),
-  //   );
-  // }
-
   Future<Uint8List> _readFileByte(File? filePath) async {
     // Uri myUri = Uri.parse(filePath);
     // File audioFile = new File.fromUri(myUri);
@@ -246,5 +180,15 @@ class _ReportPageState extends State<ReportPage> {
           onError.toString());
     });
     return bytes;
+  }
+
+  void calGraph() {
+    var con = widget.report.con[widget.report.info_evaluate];
+    // print(con! + con);
+    // setState(() {});
+    result = calculate(
+        widget.report.calStandard(), con! + con, widget.report.calSample());
+    // print(result);
+    print(result.elementAt(0));
   }
 }
