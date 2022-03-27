@@ -10,6 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:moblie_app/ReportInfo.dart';
+import 'package:scidart/numdart.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 
@@ -31,9 +32,10 @@ class _ReportPageState extends State<ReportPage> {
   List<int> red = [];
   List<int> green = [];
   List<int> blue = [];
-  Set<Object> result = {};
+  late PolyFit equation;
+  List<double> result = [];
   // ReportInfo report = widget.report;
-
+  late TooltipBehavior _tooltipBehavior;
   Uint8List? imageBytes;
 
   @override
@@ -46,54 +48,83 @@ class _ReportPageState extends State<ReportPage> {
 
   @override
   Widget build(BuildContext context) {
+    _tooltipBehavior =
+        TooltipBehavior(enable: true, tooltipPosition: TooltipPosition.pointer);
     return Scaffold(
       key: UniqueKey(),
       appBar: AppBar(
-        actions: [
-          IconButton(
-              onPressed: () {
-                extractColors();
-              },
-              icon: Icon(Icons.refresh))
-        ],
+        // actions: [
+        //   IconButton(
+        //       onPressed: () {
+        //         extractColors();
+        //       },
+        //       icon: Icon(Icons.refresh))
+        // ],
         title: Text(
           'Report',
         ),
       ),
-      body: Container(
-        // decoration: BoxDecoration(
-        //     gradient: palette.isEmpty
-        //         ? null
-        //         : LinearGradient(
-        //             begin: Alignment.bottomCenter,
-        //             end: Alignment.topCenter,
-        //             stops: [0.01, 0.6, 1],
-        //             colors: [
-        //               palette.first.withOpacity(0.3),
-        //               palette[palette.length ~/ 2],
-        //               palette.last.withOpacity(0.9),
-        //             ],
-        //           )),
-        child: ListView(
-          children: [
-            SizedBox(
-              height: 20,
+      body: ListView(
+        children: [
+          Center(
+            child: Container(
+              // width: MediaQuery.of(context).size.width,
+              // height: MediaQuery.of(context).size.height * 0.3,
+              //Initialize chart
+              child: SfCartesianChart(
+                tooltipBehavior: _tooltipBehavior,
+                // title: ChartTitle(text: '$evaluation.toString()'),
+                primaryXAxis: NumericAxis(interval: 0.5),
+                primaryYAxis: NumericAxis(minimum: 180, interval: 10),
+                series: <ChartSeries>[
+                  ScatterSeries<ChartData, double>(
+                      enableTooltip: true,
+                      dataSource: calGraph(),
+                      xValueMapper: (ChartData data, _) => data.x,
+                      yValueMapper: (ChartData data, _) => data.y)
+                ],
+              ),
             ),
-            SizedBox(
-              child: imageBytes != null && imageBytes!.length > 0
-                  ? Image.file(
-                      widget.imageFile!,
-                      fit: BoxFit.fill,
-                    )
-                  : Center(child: CircularProgressIndicator()),
-              // height: 250,
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            _getGrids(),
-          ],
-        ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _colorCheck() {
+    return Container(
+      // decoration: BoxDecoration(
+      //     gradient: palette.isEmpty
+      //         ? null
+      //         : LinearGradient(
+      //             begin: Alignment.bottomCenter,
+      //             end: Alignment.topCenter,
+      //             stops: [0.01, 0.6, 1],
+      //             colors: [
+      //               palette.first.withOpacity(0.3),
+      //               palette[palette.length ~/ 2],
+      //               palette.last.withOpacity(0.9),
+      //             ],
+      //           )),
+      child: ListView(
+        children: [
+          SizedBox(
+            height: 20,
+          ),
+          SizedBox(
+            child: imageBytes != null && imageBytes!.length > 0
+                ? Image.file(
+                    widget.imageFile!,
+                    fit: BoxFit.fill,
+                  )
+                : Center(child: CircularProgressIndicator()),
+            // height: 250,
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          _getGrids(),
+        ],
       ),
     );
   }
@@ -115,7 +146,7 @@ class _ReportPageState extends State<ReportPage> {
     widget.report.green = green;
     widget.report.blue = blue;
     setState(() {});
-    calGraph();
+    // calGraph();
     // print(widget.report.red);
     // print(green);
     // print(blue);
@@ -182,13 +213,14 @@ class _ReportPageState extends State<ReportPage> {
     return bytes;
   }
 
-  void calGraph() {
+  List<ChartData> calGraph() {
     var con = widget.report.con[widget.report.info_evaluate];
-    // print(con! + con);
-    // setState(() {});
-    result = calculate(
-        widget.report.calStandard(), con! + con, widget.report.calSample());
+
+    setState(() {
+      equation = calRsquare(widget.report.calStandard(), con! + con);
+      result = calConcentrate(equation, widget.report.calSample());
+    });
     // print(result);
-    print(result.elementAt(0));
+    return getData(con! + con, widget.report.calStandard());
   }
 }
