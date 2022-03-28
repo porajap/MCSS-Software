@@ -36,12 +36,13 @@ class _ReportPageState extends State<ReportPage> {
   List<int> blue = [];
   late PolyFit equation;
   List<double> result = [];
-  // ReportInfo report = widget.report;
   Uint8List? imageBytes;
   final date = DateTime.now();
+
   static const headerText =
       TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold);
   static const normalText = TextStyle(color: Colors.black, fontSize: 20);
+
   @override
   void initState() {
     super.initState();
@@ -71,7 +72,7 @@ class _ReportPageState extends State<ReportPage> {
       body: ListView(
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: EdgeInsets.all(8.0),
             child: Column(
               children: [
                 Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
@@ -145,7 +146,7 @@ class _ReportPageState extends State<ReportPage> {
               ),
             ),
           ),
-          Center(child: Card(),)
+          Center(child: _showResult())
         ],
       ),
     );
@@ -184,6 +185,57 @@ class _ReportPageState extends State<ReportPage> {
             height: 10,
           ),
           _getGrids(),
+        ],
+      ),
+    );
+  }
+
+  Widget _showResult() {
+    return Container(
+      constraints: BoxConstraints(
+        maxWidth: MediaQuery.of(context).size.width,
+        // maxWidth: 300,
+        // maxHeight: MediaQuery.of(context).size.height,
+        maxHeight: 252,
+      ),
+      decoration: BoxDecoration(
+        shape: BoxShape.rectangle,
+        // border: Border.all(
+        //   color: Colors.black,
+        // ),
+        // image: imageFile != null
+        //     ? DecorationImage(image: FileImage(imageFile!))
+        //     : DecorationImage(
+        //         image:
+        //             AssetImage('assets/images/water.jpg'))
+      ),
+      child: Stack(
+        children: [
+          widget.imageFile != null
+              ? Image.file(widget.imageFile!,
+                  width: double.infinity,
+                  height: double.infinity,
+                  semanticLabel: "96-well plates",
+                  fit: BoxFit.fill)
+              : Center(
+                  child: Text(
+                    "No image selected",
+                    style: normalText,
+                    textAlign: TextAlign.center,
+                  ),
+                  widthFactor: double.infinity,
+                  heightFactor: double.infinity,
+                ),
+          GridView.count(
+            shrinkWrap: true,
+            // physics: NeverScrollableScrollPhysics(),
+            crossAxisCount: 12,
+            // childAspectRatio: 0.67,
+            children: List.generate(
+              96,
+              (index) => _printResult(result, index),
+            ),
+          )
         ],
       ),
     );
@@ -261,8 +313,9 @@ class _ReportPageState extends State<ReportPage> {
     // Uri myUri = Uri.parse(filePath);
     // File audioFile = new File.fromUri(myUri);
     File audioFile = filePath!;
-    Uint8List bytes =
-        (await rootBundle.load('lib/assets/images/water.jpg')).buffer.asUint8List();
+    Uint8List bytes = (await rootBundle.load('lib/assets/images/water.jpg'))
+        .buffer
+        .asUint8List();
     await audioFile.readAsBytes().then((value) {
       bytes = Uint8List.fromList(value);
       print('reading of bytes is completed');
@@ -306,3 +359,5 @@ class _ReportPageState extends State<ReportPage> {
     return getData(result, widget.report.calSample());
   }
 }
+
+_printResult(List<double> result, int index) {}
