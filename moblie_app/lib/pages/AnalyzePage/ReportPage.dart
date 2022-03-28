@@ -9,13 +9,15 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:moblie_app/ReportInfo.dart';
+import 'package:intl/intl.dart';
+import 'package:moblie_app/models/ReportInfo.dart';
 import 'package:scidart/numdart.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 
-import 'RGBgenerator.dart';
-import 'Graphgenerator.dart';
+import 'cpmponents/Graphgenerator.dart';
+import '../InputPage/components/RGBgenerator.dart';
+import '../../models/ReportInfo.dart';
 
 class ReportPage extends StatefulWidget {
   final File? imageFile;
@@ -35,21 +37,23 @@ class _ReportPageState extends State<ReportPage> {
   late PolyFit equation;
   List<double> result = [];
   // ReportInfo report = widget.report;
-  late TooltipBehavior _tooltipBehavior;
   Uint8List? imageBytes;
-
+  final date = DateTime.now();
+  static const headerText =
+      TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold);
+  static const normalText = TextStyle(color: Colors.black, fontSize: 20);
   @override
   void initState() {
     super.initState();
     extractColors();
+    // print(date);
     // print(widget.imageFile);
-    // print(widget.report.evaluate);
+    // print(widget.report.info_name);
   }
 
   @override
   Widget build(BuildContext context) {
-    _tooltipBehavior =
-        TooltipBehavior(enable: true, tooltipPosition: TooltipPosition.pointer);
+    // print(widget.report.info_name);
     return Scaffold(
       key: UniqueKey(),
       appBar: AppBar(
@@ -66,26 +70,82 @@ class _ReportPageState extends State<ReportPage> {
       ),
       body: ListView(
         children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                  Text('Report name: ', style: headerText),
+                  // Spacer(),
+                  widget.report.name == null
+                      ? Text(widget.report.name, style: normalText)
+                      : Text('Demo', style: normalText)
+                ]),
+                Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                  Text('Evaluate: ', style: headerText),
+                  // Spacer(),
+                  Text(widget.report.evaluate, style: normalText)
+                ]),
+                Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                  Text('Date: ', style: headerText),
+                  // Spacer(),
+                  Text(DateFormat.yMd().add_jm().format(date),
+                      style: normalText)
+                ])
+              ],
+            ),
+          ),
           Center(
             child: Container(
               // width: MediaQuery.of(context).size.width,
               // height: MediaQuery.of(context).size.height * 0.3,
               //Initialize chart
               child: SfCartesianChart(
-                tooltipBehavior: _tooltipBehavior,
-                // title: ChartTitle(text: '$evaluation.toString()'),
-                primaryXAxis: NumericAxis(interval: 0.5),
-                primaryYAxis: NumericAxis(minimum: 180, interval: 10),
-                series: <ChartSeries>[
+                tooltipBehavior: TooltipBehavior(
+                    enable: true, tooltipPosition: TooltipPosition.pointer),
+                title: ChartTitle(
+                  text: 'Standard Linear Regression',
+                ),
+                primaryXAxis: widget.report.info_evaluate == 'Potassium'
+                    ? NumericAxis(minimum: 0, interval: 10, maximum: 30)
+                    : NumericAxis(minimum: 0, interval: 0.5, maximum: 5),
+                legend: Legend(
+                    isVisible: true,
+                    position: LegendPosition.bottom,
+                    overflowMode: LegendItemOverflowMode.wrap),
+                primaryYAxis:
+                    NumericAxis(minimum: 180, maximum: 260, interval: 10),
+                series: <CartesianSeries>[
                   ScatterSeries<ChartData, double>(
+                      legendItemText: 'standard',
                       enableTooltip: true,
-                      dataSource: calGraph(),
+                      dataSource: calScatter(),
+                      xValueMapper: (ChartData data, _) => data.x,
+                      yValueMapper: (ChartData data, _) => data.y),
+                  ScatterSeries<ChartData, double>(
+                      legendItemText: 'sample',
+                      enableTooltip: true,
+                      dataSource: calScatter2(),
+                      xValueMapper: (ChartData data, _) => data.x,
+                      yValueMapper: (ChartData data, _) => data.y),
+                  LineSeries<ChartData, double>(
+                      legendItemText: 'y = ' +
+                          equation.coefficient(1).toStringAsFixed(3) +
+                          'x' +
+                          '+' +
+                          equation.coefficient(0).toStringAsFixed(3) +
+                          ' (R^2 =' +
+                          equation.R2().toStringAsFixed(3) +
+                          ')',
+                      enableTooltip: true,
+                      dataSource: calLine(),
                       xValueMapper: (ChartData data, _) => data.x,
                       yValueMapper: (ChartData data, _) => data.y)
                 ],
               ),
             ),
           ),
+          Center(child: Card(),)
         ],
       ),
     );
@@ -146,7 +206,7 @@ class _ReportPageState extends State<ReportPage> {
     widget.report.green = green;
     widget.report.blue = blue;
     setState(() {});
-    // calGraph();
+    // calScatter();
     // print(widget.report.red);
     // print(green);
     // print(blue);
@@ -202,7 +262,7 @@ class _ReportPageState extends State<ReportPage> {
     // File audioFile = new File.fromUri(myUri);
     File audioFile = filePath!;
     Uint8List bytes =
-        (await rootBundle.load('assets/images/water.jpg')).buffer.asUint8List();
+        (await rootBundle.load('lib/assets/images/water.jpg')).buffer.asUint8List();
     await audioFile.readAsBytes().then((value) {
       bytes = Uint8List.fromList(value);
       print('reading of bytes is completed');
@@ -213,14 +273,36 @@ class _ReportPageState extends State<ReportPage> {
     return bytes;
   }
 
-  List<ChartData> calGraph() {
+  List<ChartData> calScatter() {
     var con = widget.report.con[widget.report.info_evaluate];
 
     setState(() {
       equation = calRsquare(widget.report.calStandard(), con! + con);
-      result = calConcentrate(equation, widget.report.calSample());
     });
-    // print(result);
+    print(widget.report.calStandard());
     return getData(con! + con, widget.report.calStandard());
+  }
+
+  List<ChartData> calLine() {
+    var con = widget.report.con[widget.report.info_evaluate];
+
+    equation = calRsquare(widget.report.calStandard(), con! + con);
+    var zero = -equation.coefficient(0) / equation.coefficient(1);
+    // print(zero);
+    List<double> sample = [for (double i = 180; i <= zero; i++) i];
+    result = calConcentrate(equation, sample);
+
+    // print(result.length);
+    return getData(result, sample);
+  }
+
+  List<ChartData> calScatter2() {
+    var con = widget.report.con[widget.report.info_evaluate];
+    equation = calRsquare(widget.report.calStandard(), con! + con);
+
+    result = calConcentrate(equation, widget.report.calSample());
+    setState(() {});
+    // print(result.length);
+    return getData(result, widget.report.calSample());
   }
 }

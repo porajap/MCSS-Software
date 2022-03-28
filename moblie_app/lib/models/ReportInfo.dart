@@ -1,7 +1,7 @@
 import 'dart:core';
 
 class ReportInfo {
-  late String name;
+  late String name = 'Demo';
   late String evaluate;
   late List<int> red;
   late List<int> green;
@@ -10,12 +10,16 @@ class ReportInfo {
   List<double> sample = [];
   Map<String, List<double>> con = {
     'Phosphate': [0, 0.5, 1, 2, 3],
-    'Nitrate': [0, 0.1, 0.5, 1, 2.5, 5],
+    'Nitrate': [0, 0.5, 1, 2.5, 5],
     'Potaasium': [0, 5, 10, 20, 30]
   };
 
   String get info_evaluate {
     return evaluate;
+  }
+
+  String get info_name {
+    return name;
   }
 
   List<double> calStandard() {
@@ -27,14 +31,14 @@ class ReportInfo {
       for (int i = 1; i < red.length; i++) {
         if (pp.contains(i)) {
           // print(i);
-          standard.add(red[i].toDouble());
+          standard.add(red[i - 1].toDouble());
         }
       }
     } else if (this.evaluate == 'Nitrate') {
       for (int i = 1; i < green.length; i++) {
         if (pp.contains(i)) {
           // print(i);
-          standard.add(green[i].toDouble());
+          standard.add(green[i - 1].toDouble());
         }
       }
     }
@@ -90,14 +94,14 @@ class ReportInfo {
       for (int i = 1; i < red.length; i++) {
         if (pnp.contains(i)) {
           // print(i);
-          sample.add(red[i].toDouble());
+          sample.add(red[i - 1].toDouble());
         }
       }
     } else if (this.evaluate == 'Nitrate') {
       for (int i = 1; i < green.length; i++) {
         if (pnp.contains(i)) {
           // print(i);
-          sample.add(green[i].toDouble());
+          sample.add(green[i - 1].toDouble());
         }
       }
     }
