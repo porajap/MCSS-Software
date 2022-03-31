@@ -4,6 +4,7 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:moblie_app/models/ReportInfo.dart';
 import 'package:moblie_app/utils/TextConfig.dart';
 
+import '../../utils/InputDecoration.dart';
 import '../AnalyzePage/ReportPage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -21,19 +22,17 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController reportName = TextEditingController();
-  String dropdownValue = "Phosphate";
+  String dropdownValue = 'select evaluate';
   File? imageFile;
   File? _image;
-  late ReportInfo report = ReportInfo('','',[],[],[]);
+  late ReportInfo report = ReportInfo('', '', [], [], []);
 
   @override
   void initState() {
     super.initState();
     reportName.clear();
-    report.evaluate = dropdownValue;
+    // report.evaluate = dropdownValue;
   }
-
-
 
   void _showImageDialog() {
     showDialog(
@@ -227,38 +226,32 @@ class _MyHomePageState extends State<MyHomePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text("Report Name :", style: StyleText.headerText),
+                          SizedBox(
+                            height: 0.5,
+                          ),
                           TextFormField(
                             controller: reportName,
-                            decoration: const InputDecoration(
-                                hintText: "Report name...",
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(10),
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10)))),
+                            decoration:
+                                InputDecorations.inputDec(hintText: 'example'),
                             style: StyleText.normalText,
                           ),
                           SizedBox(
                             height: 10,
                           ),
-                          Text("Evaluate Profile :", style: StyleText.headerText),
+                          Text("Evaluate Profile :",
+                              style: StyleText.headerText),
+                          SizedBox(
+                            height: 0.5,
+                          ),
                           InputDecorator(
-                              decoration: const InputDecoration(
-                                  alignLabelWithHint: true,
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(10))),
-                                  contentPadding: EdgeInsets.all(8)),
-                              child: DropdownButtonHideUnderline(
-                                  child: DropdownButton<String>(
-                                disabledHint: Text('Choose...'),
+                            decoration: InputDecorations.inputDec(hintText: ''),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
                                 value: dropdownValue,
                                 icon: const Icon(Icons.arrow_drop_down),
-                                isExpanded: true,
-                                elevation: 16,
+                                elevation: 12,
                                 style: StyleText.normalText,
                                 onChanged: (String? newValue) {
                                   setState(() {
@@ -269,6 +262,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   print(report.name);
                                 },
                                 items: [
+                                  'select evaluate',
                                   'Phosphate',
                                   'Nitrate',
                                   'Potassium',
@@ -280,10 +274,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                 ].map<DropdownMenuItem<String>>((String value) {
                                   return DropdownMenuItem<String>(
                                     value: value,
-                                    child: Text(value),
+                                    child: Text(value,
+                                        style: StyleText.normalText),
                                   );
                                 }).toList(),
-                              ))),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                       SizedBox(
@@ -300,43 +297,27 @@ class _MyHomePageState extends State<MyHomePage> {
                                   style: StyleText.headerText,
                                 ),
                                 Spacer(),
-                                imageFile == null
-                                    ? ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          textStyle: StyleText.normalText,
-                                        ),
-                                        onPressed: _showImageDialog,
-                                        child: Text(
-                                          "Browse image",
-                                        ),
-                                      )
-                                    : ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                            textStyle: StyleText.normalText),
-                                        onPressed: _showImageDialog,
-                                        child: Text(
-                                          "Change image",
-                                        ),
-                                      )
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    textStyle: StyleText.normalText,
+                                  ),
+                                  onPressed: _showImageDialog,
+                                  child: Text(
+                                    imageFile == null
+                                        ? "Browse image"
+                                        : "Change image",
+                                    style: StyleText.buttonText,
+                                  ),
+                                )
                               ],
                             ),
                             Container(
                               constraints: BoxConstraints(
                                 maxWidth: MediaQuery.of(context).size.width,
-                                // maxWidth: 300,
-                                // maxHeight: MediaQuery.of(context).size.height,
                                 maxHeight: 252,
                               ),
                               decoration: BoxDecoration(
                                 shape: BoxShape.rectangle,
-                                // border: Border.all(
-                                //   color: Colors.black,
-                                // ),
-                                // image: imageFile != null
-                                //     ? DecorationImage(image: FileImage(imageFile!))
-                                //     : DecorationImage(
-                                //         image:
-                                //             AssetImage('assets/images/water.jpg'))
                               ),
                               child: Stack(
                                 children: [
@@ -359,7 +340,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                     shrinkWrap: true,
                                     // physics: NeverScrollableScrollPhysics(),
                                     crossAxisCount: 12,
-                                    // childAspectRatio: 0.67,
                                     children: List.generate(
                                         96,
                                         (index) => _checkBox(
@@ -369,25 +349,29 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                             ),
                           ]),
-                      SizedBox(height: 10,),
+                      SizedBox(
+                        height: 10,
+                      ),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                             textStyle: StyleText.normalText,
                             minimumSize: const Size.fromHeight(50)),
-                        onPressed: () {imageFile==null?BotToast.showText(text: 'Please fill info'):
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (BuildContext context) => ReportPage(
-                                imageFile: _image,
-                                report: report,
-                              ),
-                            ),
-                          );
+                        onPressed: () {
+                          imageFile == null ||
+                                  report.evaluate == 'select evaluate'
+                              ? BotToast.showText(text: 'Please fill info')
+                              : Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (BuildContext context) =>
+                                        ReportPage(
+                                      imageFile: _image,
+                                      report: report,
+                                    ),
+                                  ),
+                                );
                         },
-                        child: Text(
-                          "Analyze",
-                        ),
+                        child: Text("Analyze", style: StyleText.buttonText),
                       ),
                     ]),
               ),

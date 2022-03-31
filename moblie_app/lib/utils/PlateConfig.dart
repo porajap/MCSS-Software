@@ -1,17 +1,9 @@
-List<int> genRow(int noRow, List<int> rowStart) {
-  var rows;
-  for (int i in rowStart) {
-    rows = List.generate(noRow, (index) => index + i);
-    rows = rows+rows;
-  }
-
-  return rows;
-}
-
 class Plate {
+  var label = ['D', 'E', 'F', 'G'];
+  var no = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+
   //Phosphate,Nitrate,Potassium
   var pnpStandard = [14, 15, 16, 17, 18, 26, 27, 28, 29, 30];
-  // var pnpSample = genRow(10, [38,50,62,84]);
   var pnpSample = [
     38,
     39,

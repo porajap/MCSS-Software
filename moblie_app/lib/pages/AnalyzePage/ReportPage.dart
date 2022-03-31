@@ -13,7 +13,9 @@ import 'package:moblie_app/pages/AnalyzePage/cpmponents/Capturegenerator.dart';
 import 'package:scidart/numdart.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+import '../../main.dart';
 import '../../utils/PlateConfig.dart';
+import '../../utils/TextConfig.dart';
 import 'cpmponents/Graphgenerator.dart';
 import '../InputPage/components/RGBgenerator.dart';
 import '../../models/ReportInfo.dart';
@@ -47,11 +49,11 @@ class _ReportPageState extends State<ReportPage> {
     super.initState();
     extractColors();
     cropImage();
+    // print(widget.report.evaluate);
   }
 
   selectImage(List<File> file) {
     List<File> selected = [];
-    // print(plate.pnpSample);
     for (int i = 1; i < file.length + 1; i++) {
       if (plate.pnpStandard.contains(i) || plate.pnpSample.contains(i)) {
         selected.add(file[i - 1]);
@@ -66,6 +68,7 @@ class _ReportPageState extends State<ReportPage> {
     file = await cropSquare(widget.imageFile!, true);
     var length = file!.length;
     print('#cropPerImage: $length');
+    file = selectImage(file!);
     setState(() {});
   }
 
@@ -83,7 +86,7 @@ class _ReportPageState extends State<ReportPage> {
               onPressed: () {
                 // extractColors();
               },
-              icon: Icon(Icons.save_alt),
+              icon: Icon(Icons.print_rounded),
             )
           ],
           title: Text(
@@ -104,6 +107,7 @@ class _ReportPageState extends State<ReportPage> {
                         enable: true, tooltipPosition: TooltipPosition.pointer),
                     title: ChartTitle(
                       text: 'Standard Linear Regression',
+                      textStyle: TextStyle(fontSize: 12),
                     ),
                     primaryXAxis: widget.report.evaluate == 'Potassium'
                         ? NumericAxis(minimum: 0, interval: 10, maximum: 30)
@@ -144,9 +148,7 @@ class _ReportPageState extends State<ReportPage> {
                   ),
                 ),
               ),
-              Container(
-                child: _showResult(),
-              ),
+              Container(child: _showResult()),
             ],
           ),
         ));
@@ -180,22 +182,11 @@ class _ReportPageState extends State<ReportPage> {
   Widget _showResult() {
     var con = widget.report.con[widget.report.evaluate];
     con = con! + con;
-    var row1 = List.generate(10, (index) => index + 38);
-    var row2 = List.generate(10, (index) => index + 50);
-    var row3 = List.generate(10, (index) => index + 62);
-    var row4 = List.generate(10, (index) => index + 74);
-    Map<String, List<int>> sample = {
-      'D': row1,
-      'E': row2,
-      'F': row3,
-      'G': row4
-    };
+
     int i = 0;
     int j = 0;
+    var n = -1;
 
-    file = selectImage(file!);
-    setState(() {});
-    // print(file!.length);
     return file == null
         ? CircularProgressIndicator()
         : GridView.builder(
@@ -205,31 +196,30 @@ class _ReportPageState extends State<ReportPage> {
                 SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5),
             itemCount: file!.length,
             itemBuilder: (BuildContext ctx, index) {
+              String title;
+              String concentrate;
+
               if (index < plate.pnpStandard.length) {
-                var conStandard = con![i];
+                title = 'Standard';
+                concentrate = con![i].toStringAsFixed(2);
                 i++;
-                return Column(
-                  children: [
-                    Text('Stanard'),
-                    Image.file(file![index]),
-                    Text('$conStandard')
-                  ],
-                );
               } else {
-                var conSample = result[j].toStringAsFixed(2);
+                var number = index % 10;
+                if (number == 0) n++;
+                title = plate.label[n] + plate.no[number].toString();
+                concentrate = result[j].toStringAsFixed(2);
                 j++;
-                // var label = sample.keys.firstWhere((element) => element==38);
-                // var number = sample[label]?.indexOf(index);
-                // print(label);
-                // print(number);
-                return Column(
-                  children: [
-                    Text('aA'),
-                    Image.file(file![index]),
-                    Text('$conSample')
-                  ],
-                );
               }
+              return Column(
+                children: [
+                  Text(title, style: StyleText.resultText),
+                  Image.file(file![index]),
+                  Text(
+                    '$concentrate',
+                    style: StyleText.resultText,
+                  )
+                ],
+              );
             },
           );
   }
@@ -318,37 +308,37 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   List<ChartData> calScatter() {
-    Future.delayed(Duration(seconds: 20));
+    Future.delayed(Duration(seconds: 10));
     var con = widget.report.con[widget.report.evaluate];
-    setState(() {
-      equation = calRsquare(widget.report.calStandard(), con! + con);
-    });
-    // print(widget.report.calStandard());
-    return getData(con! + con, widget.report.calStandard());
+
+    equation = calRsquare(widget.report.calStandard(), con! + con);
+    setState(() {});
+    print('#calScatter of Standard complete');
+    return getData(con + con, widget.report.calStandard());
   }
 
   List<ChartData> calLine() {
-    Future.delayed(Duration(seconds: 20));
+    Future.delayed(Duration(seconds: 10));
     var con = widget.report.con[widget.report.evaluate];
 
     equation = calRsquare(widget.report.calStandard(), con! + con);
     var zero = -equation.coefficient(0) / equation.coefficient(1);
     // print(zero);
-    List<double> sample = [for (double i = 180; i <= zero; i++) i];
+    List<double> sample = [for (double i = 180; i <= zero + 20; i++) i];
     result = calConcentrate(equation, sample);
-
-    // print(result.length);
+    setState(() {});
+    print('#calLine of Standard complete');
     return getData(result, sample);
   }
 
   List<ChartData> calScatter2() {
-    Future.delayed(Duration(seconds: 20));
+    Future.delayed(Duration(seconds: 10));
     var con = widget.report.con[widget.report.evaluate];
     equation = calRsquare(widget.report.calStandard(), con! + con);
 
     result = calConcentrate(equation, widget.report.calSample());
     setState(() {});
-    // print(result.length);
+    print('#calScatter of Sample complete');
     return getData(result, widget.report.calSample());
   }
 }

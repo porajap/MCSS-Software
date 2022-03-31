@@ -17,7 +17,7 @@ class ReportInfo {
   Map<String, List<double>> con = {
     'Phosphate': [0, 0.5, 1, 2, 3],
     'Nitrate': [0, 0.5, 1, 2.5, 5],
-    'Potaasium': [0, 5, 10, 20, 30]
+    'Potassium': [0, 5, 10, 20, 30]
   };
   Plate plate = Plate();
   ReportInfo(this.name, this.evaluate, this.red, this.green, this.blue);
@@ -27,7 +27,7 @@ class ReportInfo {
     this.standard = [];
     // print(this.evaluate);
     try {
-      if (this.evaluate == 'Phosphate' || this.evaluate == 'Potaasium') {
+      if (this.evaluate == 'Phosphate' || this.evaluate == 'Potassium') {
         for (int i = 1; i < red.length; i++) {
           if (plate.pnpStandard.contains(i)) {
             // print(i);
@@ -53,7 +53,7 @@ class ReportInfo {
     // print(Plate.php);
     this.sample = [];
     try {
-      if (this.evaluate == 'Phosphate' || this.evaluate == 'Potaasium') {
+      if (this.evaluate == 'Phosphate' || this.evaluate == 'Potassium') {
         for (int i = 1; i < red.length; i++) {
           if (plate.pnpSample.contains(i)) {
             // print(i);

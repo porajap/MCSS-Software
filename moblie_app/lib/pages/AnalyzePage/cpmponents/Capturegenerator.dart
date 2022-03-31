@@ -1,9 +1,7 @@
-// import 'dart:convert';
-// import 'dart:io';
 import 'dart:convert';
 import 'dart:math';
 import 'package:image/image.dart' as imageLib;
-// import 'package:path_provider/path_provider.dart';
+
 
 import 'dart:io';
 
@@ -23,15 +21,9 @@ Future cropSquare(File imageFile, bool flip) async {
   var bytes = await imageFile.readAsBytes();
   imageLib.Image? src = imageLib.decodeImage(bytes);
 
-  var cropSize = min(src!.width, src.height);
-  var cropSizeX = src.width ~/ noOfPerAxisX ;
+  var cropSizeX = src!.width ~/ noOfPerAxisX ;
   var cropSizeY = src.height ~/ noOfPerAxisY ;
 
-  // int offsetX = (src.width - min(src.width, src.height)) ~/ 2;
-  // int offsetY = (src.height - min(src.width, src.height)) ~/ 2;
-
-  // imageLib.Image destImage =
-  //     imageLib.copyCrop(src, offsetX, offsetY, cropSizeX, cropSizeY);
   for(int i = 0;i<noOfPerAxisY;i++){
     for(int j = 0;j<noOfPerAxisX;j++){
       imageLib.Image destImage =

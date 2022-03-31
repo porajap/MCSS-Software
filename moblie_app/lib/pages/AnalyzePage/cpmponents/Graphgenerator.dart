@@ -13,6 +13,7 @@ class ChartData {
 }
 
 PolyFit calRsquare(List<double> x, List<double> y) {
+  // Future.delayed(Duration(seconds: 10));
   // print(x.length);
   // print(y.length);
   var equation = PolyFit(Array(x), Array(y), 1);
@@ -21,23 +22,29 @@ PolyFit calRsquare(List<double> x, List<double> y) {
 }
 
 List<double> calConcentrate(PolyFit equation, List<double> sample) {
+  // Future.delayed(Duration(seconds: 10));
   List<double> result = [];
-  try{
+  try {
     sample.forEach((code) {
       result.add(equation.predict(code));
     });
     var length = result.length;
     print('#concentrate: $length');
-  }catch(e){
+  } catch (e) {
     logger.e('Fail: cal concentrate');
   }
   return result;
 }
 
 List<ChartData> getData(List<double> result, List<double> rgbCode) {
+  // Future.delayed(Duration(seconds: 10));
   List<ChartData> data = [];
-  for (int i = 0; i < result.length; i++) {
-    data.add(ChartData(result[i], rgbCode[i]));
+  try {
+    for (int i = 0; i < result.length; i++) {
+      data.add(ChartData(result[i], rgbCode[i]));
+    }
+  } catch (e) {
+    logger.e('Fail: generate ChartData');
   }
   return data;
 }

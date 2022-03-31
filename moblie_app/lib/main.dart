@@ -3,10 +3,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'pages/InputPage/InputPage.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(MyApp());
 }
+
 final logger = Logger(
   printer: PrettyPrinter(),
 );
@@ -27,12 +29,13 @@ class MyApp extends StatelessWidget {
     }
     return MaterialApp(
       title: "modern-css",
-        builder: BotToastInit(),
-        navigatorObservers: [BotToastNavigatorObserver()],
+      builder: BotToastInit(),
+      navigatorObservers: [BotToastNavigatorObserver()],
       home: MyHomePage(),
-      theme: ThemeData(primarySwatch: Colors.purple),
+      theme: ThemeData(
+          primarySwatch: Colors.purple,
+          focusColor: Colors.purple,
+          textTheme: GoogleFonts.sarabunTextTheme()),
     );
   }
 }
-
- 
