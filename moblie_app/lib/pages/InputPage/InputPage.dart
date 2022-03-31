@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:bot_toast/bot_toast.dart';
 import 'package:moblie_app/models/ReportInfo.dart';
+import 'package:moblie_app/utils/TextConfig.dart';
 
 import '../AnalyzePage/ReportPage.dart';
 import 'package:flutter/material.dart';
@@ -8,9 +10,7 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
-
 import '../../models/ReportInfo.dart';
-
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -24,17 +24,16 @@ class _MyHomePageState extends State<MyHomePage> {
   String dropdownValue = "Phosphate";
   File? imageFile;
   File? _image;
-  var report = ReportInfo();
+  late ReportInfo report = ReportInfo('','',[],[],[]);
 
   @override
   void initState() {
     super.initState();
+    reportName.clear();
     report.evaluate = dropdownValue;
   }
 
-  static const normalText = TextStyle(color: Colors.black, fontSize: 20);
-  static const headerText =
-      TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold);
+
 
   void _showImageDialog() {
     showDialog(
@@ -43,7 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
           return AlertDialog(
             title: Text(
               "Please choose an option",
-              style: headerText,
+              style: StyleText.headerText,
             ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
@@ -116,7 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
         // aspectRatioPresets: [
         //   CropAspectRatioPreset.original,
         // ],
-        androidUiSettings: AndroidUiSettings(
+        androidUiSettings: const AndroidUiSettings(
           cropGridRowCount: 7,
           cropGridColumnCount: 11,
         ));
@@ -227,11 +226,10 @@ class _MyHomePageState extends State<MyHomePage> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Report Name :", style: headerText),
+                          Text("Report Name :", style: StyleText.headerText),
                           TextFormField(
                             controller: reportName,
-                            onChanged: (context) => {print(context)},
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                                 hintText: "Report name...",
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.all(
@@ -241,11 +239,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                 focusedBorder: OutlineInputBorder(
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(10)))),
-                            style: normalText,
+                            style: StyleText.normalText,
                           ),
-                          Text("Evaluate Profile :", style: headerText),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text("Evaluate Profile :", style: StyleText.headerText),
                           InputDecorator(
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                   alignLabelWithHint: true,
                                   border: OutlineInputBorder(
                                       borderRadius: BorderRadius.all(
@@ -258,14 +259,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                 icon: const Icon(Icons.arrow_drop_down),
                                 isExpanded: true,
                                 elevation: 16,
-                                style: normalText,
+                                style: StyleText.normalText,
                                 onChanged: (String? newValue) {
                                   setState(() {
                                     dropdownValue = newValue!;
                                     report.name = reportName.text.toString();
                                     report.evaluate = dropdownValue;
                                   });
-                                  // print(report.evaluate);
+                                  print(report.name);
                                 },
                                 items: [
                                   'Phosphate',
@@ -296,13 +297,13 @@ class _MyHomePageState extends State<MyHomePage> {
                               children: [
                                 Text(
                                   "Image :",
-                                  style: headerText,
+                                  style: StyleText.headerText,
                                 ),
                                 Spacer(),
                                 imageFile == null
                                     ? ElevatedButton(
                                         style: ElevatedButton.styleFrom(
-                                          textStyle: normalText,
+                                          textStyle: StyleText.normalText,
                                         ),
                                         onPressed: _showImageDialog,
                                         child: Text(
@@ -311,7 +312,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       )
                                     : ElevatedButton(
                                         style: ElevatedButton.styleFrom(
-                                            textStyle: normalText),
+                                            textStyle: StyleText.normalText),
                                         onPressed: _showImageDialog,
                                         child: Text(
                                           "Change image",
@@ -348,7 +349,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       : Center(
                                           child: Text(
                                             "No image selected",
-                                            style: normalText,
+                                            style: StyleText.normalText,
                                             textAlign: TextAlign.center,
                                           ),
                                           widthFactor: double.infinity,
@@ -368,57 +369,21 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                             ),
                           ]),
-
-                      //   child: Center(
-                      //       child: Text("No image selected",
-                      //           style: normalText)),
-                      //   decoration: BoxDecoration(
-                      //     border: Border.all(color: Colors.grey),
-                      //   ),
-                      //   width: MediaQuery.of(context).size.width, //360
-                      //   height: 270,
-                      // ),
-                      // )
-                      // SizedBox(
-                      //     child: GridView.count(
-                      //     shrinkWrap: true,
-                      //     physics: NeverScrollableScrollPhysics(),
-                      //     crossAxisCount: 12,
-                      //     // childAspectRatio: 0.67,
-                      //     children: List.generate(
-                      //         96,
-                      //         (index) => Container(
-                      //               decoration: BoxDecoration(
-                      //                 border: Border.all(color: Colors.grey),
-                      //               ),
-                      //             )),
-                      //   ))
-                      // : Padding(
-                      //     padding: const EdgeInsets.all(8.0),
-                      //     child: Container(
-                      //       child: GestureDetector(
-                      //         // onTap: () {
-                      //         //   _showImageDialog();
-                      //         // },
-                      //         child: Image.file(
-                      //           imageFile!,
-                      //           semanticLabel: "96-well plates",
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   )
+                      SizedBox(height: 10,),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          textStyle: normalText,
-                        ),
-                        onPressed: () {
+                            textStyle: StyleText.normalText,
+                            minimumSize: const Size.fromHeight(50)),
+                        onPressed: () {imageFile==null?BotToast.showText(text: 'Please fill info'):
                           Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (BuildContext context) => ReportPage(
-                                        imageFile: _image,
-                                        report: report,
-                                      )));
+                            context,
+                            MaterialPageRoute(
+                              builder: (BuildContext context) => ReportPage(
+                                imageFile: _image,
+                                report: report,
+                              ),
+                            ),
+                          );
                         },
                         child: Text(
                           "Analyze",

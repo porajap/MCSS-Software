@@ -4,6 +4,8 @@ import 'package:scidart/numdart.dart';
 import 'package:scidart/scidart.dart';
 import 'package:flutter/material.dart';
 
+import '../../../main.dart';
+
 class ChartData {
   ChartData(this.x, this.y);
   final double x;
@@ -14,23 +16,26 @@ PolyFit calRsquare(List<double> x, List<double> y) {
   // print(x.length);
   // print(y.length);
   var equation = PolyFit(Array(x), Array(y), 1);
-  print(equation);
+  // print(equation);
   return equation;
 }
 
 List<double> calConcentrate(PolyFit equation, List<double> sample) {
   List<double> result = [];
-  sample.forEach((code) {
-    result.add(equation.predict(code));
-  });
-  print(result.length);
+  try{
+    sample.forEach((code) {
+      result.add(equation.predict(code));
+    });
+    var length = result.length;
+    print('#concentrate: $length');
+  }catch(e){
+    logger.e('Fail: cal concentrate');
+  }
   return result;
 }
 
 List<ChartData> getData(List<double> result, List<double> rgbCode) {
   List<ChartData> data = [];
-  // print(result);
-  // print(rgbCode);
   for (int i = 0; i < result.length; i++) {
     data.add(ChartData(result[i], rgbCode[i]));
   }

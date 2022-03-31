@@ -2,28 +2,28 @@ import 'dart:io';
 import 'dart:ui';
 import 'dart:typed_data';
 import 'dart:async';
-import 'dart:math';
-import 'dart:typed_data';
-import 'package:flutter_launcher_icons/utils.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
+
 import 'package:moblie_app/models/ReportInfo.dart';
+import 'package:moblie_app/pages/AnalyzePage/cpmponents/Capturegenerator.dart';
+
 import 'package:scidart/numdart.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 
+import '../../utils/PlateConfig.dart';
 import 'cpmponents/Graphgenerator.dart';
 import '../InputPage/components/RGBgenerator.dart';
 import '../../models/ReportInfo.dart';
+import 'cpmponents/reportHeader.dart';
 
 class ReportPage extends StatefulWidget {
   final File? imageFile;
   ReportInfo report;
+
   ReportPage({this.imageFile, required this.report});
-  // const ReportPage({Key? key}) : super(key: key);
 
   @override
   State<ReportPage> createState() => _ReportPageState();
@@ -37,136 +37,123 @@ class _ReportPageState extends State<ReportPage> {
   late PolyFit equation;
   List<double> result = [];
   Uint8List? imageBytes;
-  final date = DateTime.now();
 
-  static const headerText =
-      TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold);
-  static const normalText = TextStyle(color: Colors.black, fontSize: 20);
+  List<File>? file;
+
+  Plate plate = Plate();
 
   @override
   void initState() {
     super.initState();
     extractColors();
-    // print(date);
-    // print(widget.imageFile);
-    // print(widget.report.info_name);
+    cropImage();
+  }
+
+  selectImage(List<File> file) {
+    List<File> selected = [];
+    // print(plate.pnpSample);
+    for (int i = 1; i < file.length + 1; i++) {
+      if (plate.pnpStandard.contains(i) || plate.pnpSample.contains(i)) {
+        selected.add(file[i - 1]);
+        // print(i);
+      }
+    }
+    print(selected.length);
+    return selected;
+  }
+
+  cropImage() async {
+    file = await cropSquare(widget.imageFile!, true);
+    var length = file!.length;
+    print('#cropPerImage: $length');
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    // print(widget.report.info_name);
+    var report = widget.report;
+
+    Future.delayed(Duration(seconds: 20));
+
     return Scaffold(
-      key: UniqueKey(),
-      appBar: AppBar(
-        // actions: [
-        //   IconButton(
-        //       onPressed: () {
-        //         extractColors();
-        //       },
-        //       icon: Icon(Icons.refresh))
-        // ],
-        title: Text(
-          'Report',
+        key: UniqueKey(),
+        appBar: AppBar(
+          actions: [
+            IconButton(
+              onPressed: () {
+                // extractColors();
+              },
+              icon: Icon(Icons.save_alt),
+            )
+          ],
+          title: Text(
+            'Report',
+          ),
         ),
-      ),
-      body: ListView(
-        children: [
-          Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-                  Text('Report name: ', style: headerText),
-                  // Spacer(),
-                  widget.report.name == null
-                      ? Text(widget.report.name, style: normalText)
-                      : Text('Demo', style: normalText)
-                ]),
-                Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-                  Text('Evaluate: ', style: headerText),
-                  // Spacer(),
-                  Text(widget.report.evaluate, style: normalText)
-                ]),
-                Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-                  Text('Date: ', style: headerText),
-                  // Spacer(),
-                  Text(DateFormat.yMd().add_jm().format(date),
-                      style: normalText)
-                ])
-              ],
-            ),
-          ),
-          Center(
-            child: Container(
-              // width: MediaQuery.of(context).size.width,
-              // height: MediaQuery.of(context).size.height * 0.3,
-              //Initialize chart
-              child: SfCartesianChart(
-                tooltipBehavior: TooltipBehavior(
-                    enable: true, tooltipPosition: TooltipPosition.pointer),
-                title: ChartTitle(
-                  text: 'Standard Linear Regression',
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              reportHeader(report.name, report.evaluate),
+              Center(
+                child: Container(
+                  // width: MediaQuery.of(context).size.width,
+                  // height: MediaQuery.of(context).size.height * 0.3,
+                  //Initialize chart
+                  child: SfCartesianChart(
+                    tooltipBehavior: TooltipBehavior(
+                        enable: true, tooltipPosition: TooltipPosition.pointer),
+                    title: ChartTitle(
+                      text: 'Standard Linear Regression',
+                    ),
+                    primaryXAxis: widget.report.evaluate == 'Potassium'
+                        ? NumericAxis(minimum: 0, interval: 10, maximum: 30)
+                        : NumericAxis(minimum: 0, interval: 0.5, maximum: 5),
+                    legend: Legend(
+                        isVisible: true,
+                        position: LegendPosition.bottom,
+                        overflowMode: LegendItemOverflowMode.wrap),
+                    primaryYAxis:
+                        NumericAxis(minimum: 180, maximum: 260, interval: 10),
+                    series: <CartesianSeries>[
+                      ScatterSeries<ChartData, double>(
+                          legendItemText: 'standard',
+                          enableTooltip: true,
+                          dataSource: calScatter(),
+                          xValueMapper: (ChartData data, _) => data.x,
+                          yValueMapper: (ChartData data, _) => data.y),
+                      ScatterSeries<ChartData, double>(
+                          legendItemText: 'sample',
+                          enableTooltip: true,
+                          dataSource: calScatter2(),
+                          xValueMapper: (ChartData data, _) => data.x,
+                          yValueMapper: (ChartData data, _) => data.y),
+                      LineSeries<ChartData, double>(
+                          legendItemText: 'y = ' +
+                              equation.coefficient(1).toStringAsFixed(3) +
+                              'x' +
+                              '+' +
+                              equation.coefficient(0).toStringAsFixed(3) +
+                              ' (R^2 =' +
+                              equation.R2().toStringAsFixed(3) +
+                              ')',
+                          enableTooltip: true,
+                          dataSource: calLine(),
+                          xValueMapper: (ChartData data, _) => data.x,
+                          yValueMapper: (ChartData data, _) => data.y)
+                    ],
+                  ),
                 ),
-                primaryXAxis: widget.report.info_evaluate == 'Potassium'
-                    ? NumericAxis(minimum: 0, interval: 10, maximum: 30)
-                    : NumericAxis(minimum: 0, interval: 0.5, maximum: 5),
-                legend: Legend(
-                    isVisible: true,
-                    position: LegendPosition.bottom,
-                    overflowMode: LegendItemOverflowMode.wrap),
-                primaryYAxis:
-                    NumericAxis(minimum: 180, maximum: 260, interval: 10),
-                series: <CartesianSeries>[
-                  ScatterSeries<ChartData, double>(
-                      legendItemText: 'standard',
-                      enableTooltip: true,
-                      dataSource: calScatter(),
-                      xValueMapper: (ChartData data, _) => data.x,
-                      yValueMapper: (ChartData data, _) => data.y),
-                  ScatterSeries<ChartData, double>(
-                      legendItemText: 'sample',
-                      enableTooltip: true,
-                      dataSource: calScatter2(),
-                      xValueMapper: (ChartData data, _) => data.x,
-                      yValueMapper: (ChartData data, _) => data.y),
-                  LineSeries<ChartData, double>(
-                      legendItemText: 'y = ' +
-                          equation.coefficient(1).toStringAsFixed(3) +
-                          'x' +
-                          '+' +
-                          equation.coefficient(0).toStringAsFixed(3) +
-                          ' (R^2 =' +
-                          equation.R2().toStringAsFixed(3) +
-                          ')',
-                      enableTooltip: true,
-                      dataSource: calLine(),
-                      xValueMapper: (ChartData data, _) => data.x,
-                      yValueMapper: (ChartData data, _) => data.y)
-                ],
               ),
-            ),
+              Container(
+                child: _showResult(),
+              ),
+            ],
           ),
-          Center(child: _showResult())
-        ],
-      ),
-    );
+        ));
   }
 
   Widget _colorCheck() {
     return Container(
-      // decoration: BoxDecoration(
-      //     gradient: palette.isEmpty
-      //         ? null
-      //         : LinearGradient(
-      //             begin: Alignment.bottomCenter,
-      //             end: Alignment.topCenter,
-      //             stops: [0.01, 0.6, 1],
-      //             colors: [
-      //               palette.first.withOpacity(0.3),
-      //               palette[palette.length ~/ 2],
-      //               palette.last.withOpacity(0.9),
-      //             ],
-      //           )),
       child: ListView(
         children: [
           SizedBox(
@@ -191,54 +178,60 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   Widget _showResult() {
-    return Container(
-      constraints: BoxConstraints(
-        maxWidth: MediaQuery.of(context).size.width,
-        // maxWidth: 300,
-        // maxHeight: MediaQuery.of(context).size.height,
-        maxHeight: 252,
-      ),
-      decoration: BoxDecoration(
-        shape: BoxShape.rectangle,
-        // border: Border.all(
-        //   color: Colors.black,
-        // ),
-        // image: imageFile != null
-        //     ? DecorationImage(image: FileImage(imageFile!))
-        //     : DecorationImage(
-        //         image:
-        //             AssetImage('assets/images/water.jpg'))
-      ),
-      child: Stack(
-        children: [
-          widget.imageFile != null
-              ? Image.file(widget.imageFile!,
-                  width: double.infinity,
-                  height: double.infinity,
-                  semanticLabel: "96-well plates",
-                  fit: BoxFit.fill)
-              : Center(
-                  child: Text(
-                    "No image selected",
-                    style: normalText,
-                    textAlign: TextAlign.center,
-                  ),
-                  widthFactor: double.infinity,
-                  heightFactor: double.infinity,
-                ),
-          GridView.count(
+    var con = widget.report.con[widget.report.evaluate];
+    con = con! + con;
+    var row1 = List.generate(10, (index) => index + 38);
+    var row2 = List.generate(10, (index) => index + 50);
+    var row3 = List.generate(10, (index) => index + 62);
+    var row4 = List.generate(10, (index) => index + 74);
+    Map<String, List<int>> sample = {
+      'D': row1,
+      'E': row2,
+      'F': row3,
+      'G': row4
+    };
+    int i = 0;
+    int j = 0;
+
+    file = selectImage(file!);
+    setState(() {});
+    // print(file!.length);
+    return file == null
+        ? CircularProgressIndicator()
+        : GridView.builder(
+            physics: NeverScrollableScrollPhysics(),
             shrinkWrap: true,
-            // physics: NeverScrollableScrollPhysics(),
-            crossAxisCount: 12,
-            // childAspectRatio: 0.67,
-            children: List.generate(
-              96,
-              (index) => _printResult(result, index),
-            ),
-          )
-        ],
-      ),
-    );
+            gridDelegate:
+                SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5),
+            itemCount: file!.length,
+            itemBuilder: (BuildContext ctx, index) {
+              if (index < plate.pnpStandard.length) {
+                var conStandard = con![i];
+                i++;
+                return Column(
+                  children: [
+                    Text('Stanard'),
+                    Image.file(file![index]),
+                    Text('$conStandard')
+                  ],
+                );
+              } else {
+                var conSample = result[j].toStringAsFixed(2);
+                j++;
+                // var label = sample.keys.firstWhere((element) => element==38);
+                // var number = sample[label]?.indexOf(index);
+                // print(label);
+                // print(number);
+                return Column(
+                  children: [
+                    Text('aA'),
+                    Image.file(file![index]),
+                    Text('$conSample')
+                  ],
+                );
+              }
+            },
+          );
   }
 
   Future<void> extractColors() async {
@@ -310,8 +303,6 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   Future<Uint8List> _readFileByte(File? filePath) async {
-    // Uri myUri = Uri.parse(filePath);
-    // File audioFile = new File.fromUri(myUri);
     File audioFile = filePath!;
     Uint8List bytes = (await rootBundle.load('lib/assets/images/water.jpg'))
         .buffer
@@ -327,17 +318,18 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   List<ChartData> calScatter() {
-    var con = widget.report.con[widget.report.info_evaluate];
-
+    Future.delayed(Duration(seconds: 20));
+    var con = widget.report.con[widget.report.evaluate];
     setState(() {
       equation = calRsquare(widget.report.calStandard(), con! + con);
     });
-    print(widget.report.calStandard());
+    // print(widget.report.calStandard());
     return getData(con! + con, widget.report.calStandard());
   }
 
   List<ChartData> calLine() {
-    var con = widget.report.con[widget.report.info_evaluate];
+    Future.delayed(Duration(seconds: 20));
+    var con = widget.report.con[widget.report.evaluate];
 
     equation = calRsquare(widget.report.calStandard(), con! + con);
     var zero = -equation.coefficient(0) / equation.coefficient(1);
@@ -350,7 +342,8 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   List<ChartData> calScatter2() {
-    var con = widget.report.con[widget.report.info_evaluate];
+    Future.delayed(Duration(seconds: 20));
+    var con = widget.report.con[widget.report.evaluate];
     equation = calRsquare(widget.report.calStandard(), con! + con);
 
     result = calConcentrate(equation, widget.report.calSample());
@@ -359,5 +352,3 @@ class _ReportPageState extends State<ReportPage> {
     return getData(result, widget.report.calSample());
   }
 }
-
-_printResult(List<double> result, int index) {}
