@@ -26,7 +26,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String dropdownValue = PreferenceKey.inputForm;
   File? imageFile;
   File? _image;
-  late ReportInfo report = ReportInfo('', '', [], [], []);
+  ReportInfo report = ReportInfo('', '', [], [], []);
 
   @override
   void initState() {
@@ -237,6 +237,9 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         TextFormField(
           controller: reportName,
+          onChanged: (context) => setState(() {
+            report.name = context;
+          }),
           decoration: InputDecorations.inputDec(hintText: 'example'),
           style: StyleText.normalText,
         ),

@@ -12,12 +12,14 @@ class ChartData {
   final double y;
 }
 
-PolyFit calRsquare(List<double> x, List<double> y) {
+PolyFit calRsquare (List<double> x, List<double> y) {
   // Future.delayed(Duration(seconds: 10));
+
   // print(x.length);
   // print(y.length);
   var equation = PolyFit(Array(x), Array(y), 1);
   // print(equation);
+
   return equation;
 }
 

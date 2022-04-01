@@ -13,6 +13,7 @@ class ReportInfo {
   List<int> red;
   List<int> green;
   List<int> blue;
+
   List<double> standard = [];
   List<double> sample = [];
   Map<String, List<double>> con = {
@@ -20,6 +21,7 @@ class ReportInfo {
     PreferenceKey.nitrate: [0, 0.5, 1, 2.5, 5],
     PreferenceKey.potassium: [0, 5, 10, 20, 30]
   };
+
   Plate plate = Plate();
   ReportInfo(this.name, this.evaluate, this.red, this.green, this.blue);
 

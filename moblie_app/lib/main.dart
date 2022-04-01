@@ -28,6 +28,7 @@ class MyApp extends StatelessWidget {
       Logger.level = Level.debug;
     }
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: "modern-css",
       builder: BotToastInit(),
       navigatorObservers: [BotToastNavigatorObserver()],
