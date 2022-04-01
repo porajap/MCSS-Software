@@ -9,11 +9,13 @@ import 'package:flutter/services.dart';
 
 import 'package:moblie_app/models/ReportInfo.dart';
 import 'package:moblie_app/pages/AnalyzePage/cpmponents/Capturegenerator.dart';
+import 'package:moblie_app/pages/AnalyzePage/cpmponents/PDFprintgenerate.dart';
 
 import 'package:scidart/numdart.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../main.dart';
+import '../../utils/Constants.dart';
 import '../../utils/PlateConfig.dart';
 import '../../utils/TextConfig.dart';
 import 'cpmponents/Graphgenerator.dart';
@@ -32,6 +34,7 @@ class ReportPage extends StatefulWidget {
 }
 
 class _ReportPageState extends State<ReportPage> {
+  final GlobalKey<State<StatefulWidget>> _printKey = GlobalKey();
   List<Color> colors = [];
   List<int> red = [];
   List<int> green = [];
@@ -50,6 +53,16 @@ class _ReportPageState extends State<ReportPage> {
     extractColors();
     cropImage();
     // print(widget.report.evaluate);
+  }
+
+  conStandard() {
+    var con = widget.report.con[widget.report.evaluate];
+    return con! + con;
+  }
+
+  getEqualtion() {
+    Future.delayed(Duration(seconds: 10));
+    return calRsquare(widget.report.calStandard(), conStandard());
   }
 
   selectImage(List<File> file) {
@@ -76,7 +89,7 @@ class _ReportPageState extends State<ReportPage> {
   Widget build(BuildContext context) {
     var report = widget.report;
 
-    Future.delayed(Duration(seconds: 20));
+    Future.delayed(Duration(seconds: 30));
 
     return Scaffold(
         key: UniqueKey(),
@@ -85,6 +98,7 @@ class _ReportPageState extends State<ReportPage> {
             IconButton(
               onPressed: () {
                 // extractColors();
+                printScreen(_printKey);
               },
               icon: Icon(Icons.print_rounded),
             )
@@ -94,94 +108,73 @@ class _ReportPageState extends State<ReportPage> {
           ),
         ),
         body: SingleChildScrollView(
-          child: Column(
-            children: [
-              reportHeader(report.name, report.evaluate),
-              Center(
-                child: Container(
-                  // width: MediaQuery.of(context).size.width,
-                  // height: MediaQuery.of(context).size.height * 0.3,
-                  //Initialize chart
-                  child: SfCartesianChart(
-                    tooltipBehavior: TooltipBehavior(
-                        enable: true, tooltipPosition: TooltipPosition.pointer),
-                    title: ChartTitle(
-                      text: 'Standard Linear Regression',
-                      textStyle: TextStyle(fontSize: 12),
+          child: RepaintBoundary(
+            key: _printKey,
+            child: Column(
+              children: [
+                reportHeader(report.name, report.evaluate),
+                Center(
+                  child: Container(
+                    // width: MediaQuery.of(context).size.width,
+                    // height: MediaQuery.of(context).size.height * 0.3,
+                    //Initialize chart
+                    child: SfCartesianChart(
+                      tooltipBehavior: TooltipBehavior(
+                          enable: true,
+                          tooltipPosition: TooltipPosition.pointer),
+                      title: ChartTitle(
+                        text: 'Standard Linear Regression',
+                        textStyle: TextStyle(fontSize: 12),
+                      ),
+                      primaryXAxis: widget.report.evaluate ==
+                              PreferenceKey.potassium
+                          ? NumericAxis(minimum: 0, interval: 10, maximum: 30)
+                          : NumericAxis(minimum: 0, interval: 0.5, maximum: 5),
+                      legend: Legend(
+                          isVisible: true,
+                          position: LegendPosition.bottom,
+                          overflowMode: LegendItemOverflowMode.wrap),
+                      primaryYAxis:
+                          NumericAxis(minimum: 180, maximum: 260, interval: 10),
+                      series: <CartesianSeries>[
+                        ScatterSeries<ChartData, double>(
+                            legendItemText: PreferenceKey.standard,
+                            enableTooltip: true,
+                            dataSource: calScatter(PreferenceKey.standard),
+                            xValueMapper: (ChartData data, _) => data.x,
+                            yValueMapper: (ChartData data, _) => data.y),
+                        ScatterSeries<ChartData, double>(
+                            legendItemText: PreferenceKey.sample,
+                            enableTooltip: true,
+                            dataSource: calScatter(PreferenceKey.sample),
+                            xValueMapper: (ChartData data, _) => data.x,
+                            yValueMapper: (ChartData data, _) => data.y),
+                        LineSeries<ChartData, double>(
+                            legendItemText: 'y = ' +
+                                equation.coefficient(1).toStringAsFixed(3) +
+                                'x' +
+                                '+' +
+                                equation.coefficient(0).toStringAsFixed(3) +
+                                ' (R^2 =' +
+                                equation.R2().toStringAsFixed(3) +
+                                ')',
+                            enableTooltip: true,
+                            dataSource: calLine(),
+                            xValueMapper: (ChartData data, _) => data.x,
+                            yValueMapper: (ChartData data, _) => data.y)
+                      ],
                     ),
-                    primaryXAxis: widget.report.evaluate == 'Potassium'
-                        ? NumericAxis(minimum: 0, interval: 10, maximum: 30)
-                        : NumericAxis(minimum: 0, interval: 0.5, maximum: 5),
-                    legend: Legend(
-                        isVisible: true,
-                        position: LegendPosition.bottom,
-                        overflowMode: LegendItemOverflowMode.wrap),
-                    primaryYAxis:
-                        NumericAxis(minimum: 180, maximum: 260, interval: 10),
-                    series: <CartesianSeries>[
-                      ScatterSeries<ChartData, double>(
-                          legendItemText: 'standard',
-                          enableTooltip: true,
-                          dataSource: calScatter(),
-                          xValueMapper: (ChartData data, _) => data.x,
-                          yValueMapper: (ChartData data, _) => data.y),
-                      ScatterSeries<ChartData, double>(
-                          legendItemText: 'sample',
-                          enableTooltip: true,
-                          dataSource: calScatter2(),
-                          xValueMapper: (ChartData data, _) => data.x,
-                          yValueMapper: (ChartData data, _) => data.y),
-                      LineSeries<ChartData, double>(
-                          legendItemText: 'y = ' +
-                              equation.coefficient(1).toStringAsFixed(3) +
-                              'x' +
-                              '+' +
-                              equation.coefficient(0).toStringAsFixed(3) +
-                              ' (R^2 =' +
-                              equation.R2().toStringAsFixed(3) +
-                              ')',
-                          enableTooltip: true,
-                          dataSource: calLine(),
-                          xValueMapper: (ChartData data, _) => data.x,
-                          yValueMapper: (ChartData data, _) => data.y)
-                    ],
                   ),
                 ),
-              ),
-              Container(child: _showResult()),
-            ],
+                Container(child: _showResult()),
+              ],
+            ),
           ),
         ));
   }
 
-  Widget _colorCheck() {
-    return Container(
-      child: ListView(
-        children: [
-          SizedBox(
-            height: 20,
-          ),
-          SizedBox(
-            child: imageBytes != null && imageBytes!.length > 0
-                ? Image.file(
-                    widget.imageFile!,
-                    fit: BoxFit.fill,
-                  )
-                : Center(child: CircularProgressIndicator()),
-            // height: 250,
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          _getGrids(),
-        ],
-      ),
-    );
-  }
-
   Widget _showResult() {
-    var con = widget.report.con[widget.report.evaluate];
-    con = con! + con;
+    var con = conStandard();
 
     int i = 0;
     int j = 0;
@@ -200,7 +193,7 @@ class _ReportPageState extends State<ReportPage> {
               String concentrate;
 
               if (index < plate.pnpStandard.length) {
-                title = 'Standard';
+                title = PreferenceKey.standard;
                 concentrate = con![i].toStringAsFixed(2);
                 i++;
               } else {
@@ -247,51 +240,6 @@ class _ReportPageState extends State<ReportPage> {
     // print(blue);
   }
 
-  Widget _getGrids() {
-    return SizedBox(
-      // height: 200,
-      child: Row(
-        children: [
-          Expanded(
-            flex: 1,
-            child: colors.isEmpty
-                ? Container(
-                    child: CircularProgressIndicator(),
-                    alignment: Alignment.center,
-                    height: 200,
-                  )
-                : Column(
-                    children: [
-                      Text(
-                        'Extracted Pixels',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                      SizedBox(height: 10),
-                      GridView.builder(
-                          shrinkWrap: true,
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: noOfPixelsPerAxisX),
-                          itemCount: colors.length,
-                          itemBuilder: (BuildContext ctx, index) {
-                            return Container(
-                              alignment: Alignment.center,
-                              child: Container(
-                                color: colors[index],
-                              ),
-                              decoration: BoxDecoration(
-                                  border: Border.all(width: 1),
-                                  color: Colors.grey),
-                            );
-                          }),
-                    ],
-                  ),
-          )
-        ],
-      ),
-    );
-  }
-
   Future<Uint8List> _readFileByte(File? filePath) async {
     File audioFile = filePath!;
     Uint8List bytes = (await rootBundle.load('lib/assets/images/water.jpg'))
@@ -307,21 +255,25 @@ class _ReportPageState extends State<ReportPage> {
     return bytes;
   }
 
-  List<ChartData> calScatter() {
+  List<ChartData> calScatter(String type) {
     Future.delayed(Duration(seconds: 10));
-    var con = widget.report.con[widget.report.evaluate];
 
-    equation = calRsquare(widget.report.calStandard(), con! + con);
+    equation = getEqualtion();
+    result = calConcentrate(equation, widget.report.calSample());
     setState(() {});
+
     print('#calScatter of Standard complete');
-    return getData(con + con, widget.report.calStandard());
+    return getData(
+        type == PreferenceKey.standard ? conStandard() : result,
+        type == PreferenceKey.standard
+            ? widget.report.calStandard()
+            : widget.report.calSample());
   }
 
   List<ChartData> calLine() {
     Future.delayed(Duration(seconds: 10));
-    var con = widget.report.con[widget.report.evaluate];
 
-    equation = calRsquare(widget.report.calStandard(), con! + con);
+    equation = getEqualtion();
     var zero = -equation.coefficient(0) / equation.coefficient(1);
     // print(zero);
     List<double> sample = [for (double i = 180; i <= zero + 20; i++) i];
@@ -329,16 +281,5 @@ class _ReportPageState extends State<ReportPage> {
     setState(() {});
     print('#calLine of Standard complete');
     return getData(result, sample);
-  }
-
-  List<ChartData> calScatter2() {
-    Future.delayed(Duration(seconds: 10));
-    var con = widget.report.con[widget.report.evaluate];
-    equation = calRsquare(widget.report.calStandard(), con! + con);
-
-    result = calConcentrate(equation, widget.report.calSample());
-    setState(() {});
-    print('#calScatter of Sample complete');
-    return getData(result, widget.report.calSample());
   }
 }

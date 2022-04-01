@@ -4,7 +4,8 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:moblie_app/models/ReportInfo.dart';
 import 'package:moblie_app/utils/TextConfig.dart';
 
-import '../../utils/InputDecoration.dart';
+import '../../utils/Constants.dart';
+import 'components/InputDecoration.dart';
 import '../AnalyzePage/ReportPage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -22,7 +23,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController reportName = TextEditingController();
-  String dropdownValue = 'select evaluate';
+  String dropdownValue = PreferenceKey.inputForm;
   File? imageFile;
   File? _image;
   late ReportInfo report = ReportInfo('', '', [], [], []);
@@ -204,6 +205,78 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  Widget _analyzButton() {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+          textStyle: StyleText.normalText,
+          minimumSize: const Size.fromHeight(50)),
+      onPressed: () {
+        imageFile == null || report.evaluate == PreferenceKey.inputForm
+            ? BotToast.showText(text: PreferenceKey.noti)
+            : Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (BuildContext context) => ReportPage(
+                    imageFile: _image,
+                    report: report,
+                  ),
+                ),
+              );
+      },
+      child: Text(PreferenceKey.analyzButton, style: StyleText.buttonText),
+    );
+  }
+
+  Widget _inputReportName() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(PreferenceKey.nameTitle, style: StyleText.headerText),
+        SizedBox(
+          height: 0.5,
+        ),
+        TextFormField(
+          controller: reportName,
+          decoration: InputDecorations.inputDec(hintText: 'example'),
+          style: StyleText.normalText,
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Text(PreferenceKey.evaluateTitle, style: StyleText.headerText),
+        SizedBox(
+          height: 0.5,
+        ),
+        InputDecorator(
+          decoration: InputDecorations.inputDec(hintText: ''),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+              value: dropdownValue,
+              icon: const Icon(Icons.arrow_drop_down),
+              elevation: 12,
+              style: StyleText.normalText,
+              onChanged: (String? newValue) {
+                setState(() {
+                  dropdownValue = newValue!;
+                  report.name = reportName.text.toString();
+                  report.evaluate = dropdownValue;
+                });
+              },
+              items: PreferenceKey.evaluate
+                  .map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value, style: StyleText.normalText),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // print("use build State");
@@ -222,67 +295,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Report Name :", style: StyleText.headerText),
-                          SizedBox(
-                            height: 0.5,
-                          ),
-                          TextFormField(
-                            controller: reportName,
-                            decoration:
-                                InputDecorations.inputDec(hintText: 'example'),
-                            style: StyleText.normalText,
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Text("Evaluate Profile :",
-                              style: StyleText.headerText),
-                          SizedBox(
-                            height: 0.5,
-                          ),
-                          InputDecorator(
-                            decoration: InputDecorations.inputDec(hintText: ''),
-                            child: DropdownButtonHideUnderline(
-                              child: DropdownButton<String>(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10)),
-                                value: dropdownValue,
-                                icon: const Icon(Icons.arrow_drop_down),
-                                elevation: 12,
-                                style: StyleText.normalText,
-                                onChanged: (String? newValue) {
-                                  setState(() {
-                                    dropdownValue = newValue!;
-                                    report.name = reportName.text.toString();
-                                    report.evaluate = dropdownValue;
-                                  });
-                                  print(report.name);
-                                },
-                                items: [
-                                  'select evaluate',
-                                  'Phosphate',
-                                  'Nitrate',
-                                  'Potassium',
-                                  'Blue_2',
-                                  'FE1',
-                                  'Dye3',
-                                  'Blue',
-                                  'S1_2'
-                                ].map<DropdownMenuItem<String>>((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value,
-                                        style: StyleText.normalText),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                      _inputReportName(),
                       SizedBox(
                         height: 20,
                       ),
@@ -293,7 +306,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
-                                  "Image :",
+                                  PreferenceKey.imageTitle,
                                   style: StyleText.headerText,
                                 ),
                                 Spacer(),
@@ -352,27 +365,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       SizedBox(
                         height: 10,
                       ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            textStyle: StyleText.normalText,
-                            minimumSize: const Size.fromHeight(50)),
-                        onPressed: () {
-                          imageFile == null ||
-                                  report.evaluate == 'select evaluate'
-                              ? BotToast.showText(text: 'Please fill info')
-                              : Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (BuildContext context) =>
-                                        ReportPage(
-                                      imageFile: _image,
-                                      report: report,
-                                    ),
-                                  ),
-                                );
-                        },
-                        child: Text("Analyze", style: StyleText.buttonText),
-                      ),
+                      _analyzButton()
                     ]),
               ),
             ),

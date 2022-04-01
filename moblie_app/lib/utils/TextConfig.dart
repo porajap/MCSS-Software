@@ -8,5 +8,5 @@ class StyleText {
   static TextStyle buttonText =
       const TextStyle(color: Colors.white, fontSize: 15);
   static TextStyle resultText = const TextStyle(
-      color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold);
+      color: Colors.black, fontSize: 12, fontWeight: FontWeight.w400);
 }

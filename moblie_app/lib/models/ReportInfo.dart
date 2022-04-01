@@ -3,6 +3,7 @@ import 'dart:core';
 import 'package:flutter/foundation.dart';
 
 import '../main.dart';
+import '../utils/Constants.dart';
 import '../utils/PlateConfig.dart';
 
 class ReportInfo {
@@ -15,9 +16,9 @@ class ReportInfo {
   List<double> standard = [];
   List<double> sample = [];
   Map<String, List<double>> con = {
-    'Phosphate': [0, 0.5, 1, 2, 3],
-    'Nitrate': [0, 0.5, 1, 2.5, 5],
-    'Potassium': [0, 5, 10, 20, 30]
+    PreferenceKey.phosphate: [0, 0.5, 1, 2, 3],
+    PreferenceKey.nitrate: [0, 0.5, 1, 2.5, 5],
+    PreferenceKey.potassium: [0, 5, 10, 20, 30]
   };
   Plate plate = Plate();
   ReportInfo(this.name, this.evaluate, this.red, this.green, this.blue);
@@ -27,14 +28,14 @@ class ReportInfo {
     this.standard = [];
     // print(this.evaluate);
     try {
-      if (this.evaluate == 'Phosphate' || this.evaluate == 'Potassium') {
+      if (this.evaluate == PreferenceKey.phosphate || this.evaluate == PreferenceKey.potassium) {
         for (int i = 1; i < red.length; i++) {
           if (plate.pnpStandard.contains(i)) {
             // print(i);
             standard.add(red[i - 1].toDouble());
           }
         }
-      } else if (this.evaluate == 'Nitrate') {
+      } else if (this.evaluate == PreferenceKey.nitrate) {
         for (int i = 1; i < green.length; i++) {
           if (plate.pnpStandard.contains(i)) {
             // print(i);
@@ -53,14 +54,14 @@ class ReportInfo {
     // print(Plate.php);
     this.sample = [];
     try {
-      if (this.evaluate == 'Phosphate' || this.evaluate == 'Potassium') {
+      if (this.evaluate == PreferenceKey.phosphate || this.evaluate == PreferenceKey.potassium) {
         for (int i = 1; i < red.length; i++) {
           if (plate.pnpSample.contains(i)) {
             // print(i);
             sample.add(red[i - 1].toDouble());
           }
         }
-      } else if (this.evaluate == 'Nitrate') {
+      } else if (this.evaluate == PreferenceKey.nitrate) {
         for (int i = 1; i < green.length; i++) {
           if (plate.pnpSample.contains(i)) {
             // print(i);
