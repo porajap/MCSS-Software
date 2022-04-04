@@ -30,7 +30,7 @@ class ReportInfo {
     this.standard = [];
     // print(this.evaluate);
     try {
-      if (this.evaluate == PreferenceKey.phosphate || this.evaluate == PreferenceKey.potassium) {
+      if (this.evaluate == PreferenceKey.phosphate) {
         for (int i = 1; i < red.length; i++) {
           if (plate.pnpStandard.contains(i)) {
             // print(i);
@@ -42,6 +42,13 @@ class ReportInfo {
           if (plate.pnpStandard.contains(i)) {
             // print(i);
             standard.add(green[i - 1].toDouble());
+          }
+        }
+      } else if (this.evaluate == PreferenceKey.potassium) {
+        for (int i = 1; i < blue.length; i++) {
+          if (plate.pnpStandard.contains(i)) {
+            // print(i);
+            standard.add(blue[i - 1].toDouble());
           }
         }
       }
@@ -56,7 +63,7 @@ class ReportInfo {
     // print(Plate.php);
     this.sample = [];
     try {
-      if (this.evaluate == PreferenceKey.phosphate || this.evaluate == PreferenceKey.potassium) {
+      if (this.evaluate == PreferenceKey.phosphate) {
         for (int i = 1; i < red.length; i++) {
           if (plate.pnpSample.contains(i)) {
             // print(i);
@@ -68,6 +75,13 @@ class ReportInfo {
           if (plate.pnpSample.contains(i)) {
             // print(i);
             sample.add(green[i - 1].toDouble());
+          }
+        }
+      } else if (this.evaluate == PreferenceKey.potassium) {
+        for (int i = 1; i < blue.length; i++) {
+          if (plate.pnpSample.contains(i)) {
+            // print(i);
+            sample.add(blue[i - 1].toDouble());
           }
         }
       }

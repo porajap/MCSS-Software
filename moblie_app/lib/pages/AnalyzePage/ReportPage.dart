@@ -240,7 +240,10 @@ class _ReportPageState extends State<ReportPage> {
                           : SfCartesianChart(
                               tooltipBehavior: TooltipBehavior(
                                   enable: true,
-                                  tooltipPosition: TooltipPosition.pointer),
+                                  tooltipPosition: TooltipPosition.pointer,
+                                  borderColor: Colors.red,
+                                  borderWidth: 5,
+                                  color: Colors.lightBlue),
                               title: ChartTitle(
                                 text: 'Standard Linear Regression',
                                 textStyle: TextStyle(fontSize: 12),
