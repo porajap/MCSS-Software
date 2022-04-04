@@ -53,7 +53,7 @@ dependencies:
 
 flutter_icons:
   android:  ture
-  image_path: "image/dropper.png"
+  image_path: "image/Modren.png"
 
 dev_dependencies:
   flutter_test:

@@ -9,14 +9,12 @@ const String keyNoOfItems = 'noIfItems';
 int noOfPixelsPerAxisX = 12;
 int noOfPixelsPerAxisY = 8;
 
-
 Color abgrToColor(int argbColor) {
   int r = (argbColor >> 16) & 0xFF;
   int b = argbColor & 0xFF;
   int hex = (argbColor & 0xFF00FF00) | (b << 16) | r;
   return Color(hex);
 }
-
 
 List<Color> extractPixelsColors(Uint8List? bytes) {
   List<Color> colors = [];
@@ -45,11 +43,11 @@ List<Color> extractPixelsColors(Uint8List? bytes) {
   for (int j = 1; j < noOfPixelsPerAxisY + 1; j++) {
     for (int i = 1; i < noOfPixelsPerAxisX + 1; i++) {
       int? pixel;
-      if (i > 4 || j > 6) {
-        pixel = image?.getPixel(xChunk2 * i - midX, yChunk2 * j - midY);
-      } else {
-        pixel = image?.getPixel(xChunk * i - midX, yChunk * j - midY);
-      }
+      // if (i > 4 || j > 6) {
+      //   pixel = image?.getPixel(xChunk2 * i - midX, yChunk2 * j - midY);
+      // } else {
+      pixel = image?.getPixel(xChunk * i - midX, yChunk * j - midY);
+      // }
 
       pixels.add(pixel);
       Color c = abgrToColor(pixel!);

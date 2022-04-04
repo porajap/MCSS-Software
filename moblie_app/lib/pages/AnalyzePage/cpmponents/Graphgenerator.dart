@@ -12,7 +12,7 @@ class ChartData {
   final double y;
 }
 
-PolyFit calRsquare (List<double> x, List<double> y) {
+PolyFit calRsquare(List<double> x, List<double> y) {
   // Future.delayed(Duration(seconds: 10));
 
   // print(x.length);
@@ -29,7 +29,9 @@ List<double> calConcentrate(PolyFit equation, List<double> sample) {
   try {
     sample.forEach((code) {
       result.add(equation.predict(code));
+      // logger.d('$code : ${result.last}');
     });
+
     var length = result.length;
     print('#concentrate: $length');
   } catch (e) {

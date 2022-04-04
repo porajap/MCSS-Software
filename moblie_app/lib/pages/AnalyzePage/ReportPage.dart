@@ -113,28 +113,32 @@ class _ReportPageState extends State<ReportPage> {
             itemBuilder: (BuildContext ctx, index) {
               String title;
               String concentrate;
+              String rgbCode;
 
               if (index < plate.pnpStandard.length) {
-                title = PreferenceKey.standard;
+                title = 'Std';
                 concentrate = con[i].toStringAsFixed(2);
+                rgbCode = widget.report.standard[i].toStringAsFixed(0);
                 i++;
               } else {
                 var number = index % 10;
                 if (number == 0) n++;
                 title = plate.label[n] + plate.no[number].toString();
                 concentrate = result[j].toStringAsFixed(2);
+                rgbCode = widget.report.sample[j].toStringAsFixed(0);
                 j++;
               }
               return Container(
                 child: Column(
                   children: [
-                    Text(title, style: StyleText.resultText),
+                    Text(title + '=' + '$concentrate',
+                        style: StyleText.resultText),
                     Image.file(
                       file[index],
                       fit: BoxFit.contain,
                     ),
                     Text(
-                      '$concentrate',
+                      rgbCode,
                       style: StyleText.resultText,
                     )
                   ],
@@ -262,14 +266,6 @@ class _ReportPageState extends State<ReportPage> {
                                     xValueMapper: (ChartData data, _) => data.x,
                                     yValueMapper: (ChartData data, _) =>
                                         data.y),
-                                ScatterSeries<ChartData, double>(
-                                    legendItemText: PreferenceKey.sample,
-                                    enableTooltip: true,
-                                    dataSource:
-                                        calScatter(PreferenceKey.sample),
-                                    xValueMapper: (ChartData data, _) => data.x,
-                                    yValueMapper: (ChartData data, _) =>
-                                        data.y),
                                 LineSeries<ChartData, double>(
                                     legendItemText: 'y = ' +
                                         equation
@@ -286,7 +282,16 @@ class _ReportPageState extends State<ReportPage> {
                                     enableTooltip: true,
                                     dataSource: calLine(),
                                     xValueMapper: (ChartData data, _) => data.x,
-                                    yValueMapper: (ChartData data, _) => data.y)
+                                    yValueMapper: (ChartData data, _) =>
+                                        data.y),
+                                ScatterSeries<ChartData, double>(
+                                    legendItemText: PreferenceKey.sample,
+                                    enableTooltip: true,
+                                    dataSource:
+                                        calScatter(PreferenceKey.sample),
+                                    xValueMapper: (ChartData data, _) => data.x,
+                                    yValueMapper: (ChartData data, _) =>
+                                        data.y),
                               ],
                             ),
                     ),
