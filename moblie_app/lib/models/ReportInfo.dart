@@ -31,25 +31,16 @@ class ReportInfo {
     // print(this.evaluate);
     try {
       if (this.evaluate == PreferenceKey.phosphate) {
-        for (int i = 1; i < red.length; i++) {
-          if (plate.pnpStandard.contains(i)) {
-            // print(i);
-            standard.add(red[i - 1].toDouble());
-          }
+        for (int i = 1; i < 51; i++) {
+          standard.add(red[i - 1].toDouble());
         }
       } else if (this.evaluate == PreferenceKey.nitrate) {
-        for (int i = 1; i < green.length; i++) {
-          if (plate.pnpStandard.contains(i)) {
-            // print(i);
-            standard.add(green[i - 1].toDouble());
-          }
+        for (int i = 1; i < 51; i++) {
+          standard.add(green[i - 1].toDouble());
         }
       } else if (this.evaluate == PreferenceKey.potassium) {
-        for (int i = 1; i < blue.length; i++) {
-          if (plate.pnpStandard.contains(i)) {
-            // print(i);
-            standard.add(blue[i - 1].toDouble());
-          }
+        for (int i = 1; i < 51; i++) {
+          standard.add(blue[i - 1].toDouble());
         }
       }
     } catch (e) {
@@ -64,25 +55,16 @@ class ReportInfo {
     this.sample = [];
     try {
       if (this.evaluate == PreferenceKey.phosphate) {
-        for (int i = 1; i < red.length; i++) {
-          if (plate.pnpSample.contains(i)) {
-            // print(i);
-            sample.add(red[i - 1].toDouble());
-          }
+        for (int i = 51; i < red.length+1; i++) {
+          sample.add(red[i - 1].toDouble());
         }
       } else if (this.evaluate == PreferenceKey.nitrate) {
-        for (int i = 1; i < green.length; i++) {
-          if (plate.pnpSample.contains(i)) {
-            // print(i);
-            sample.add(green[i - 1].toDouble());
-          }
+        for (int i = 51; i < green.length+1; i++) {
+          sample.add(green[i - 1].toDouble());
         }
       } else if (this.evaluate == PreferenceKey.potassium) {
-        for (int i = 1; i < blue.length; i++) {
-          if (plate.pnpSample.contains(i)) {
-            // print(i);
-            sample.add(blue[i - 1].toDouble());
-          }
+        for (int i = 51; i < blue.length+1; i++) {
+          sample.add(blue[i - 1].toDouble());
         }
       }
     } catch (e) {

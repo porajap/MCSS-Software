@@ -13,19 +13,19 @@ import 'dart:typed_data';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
-int noOfPerAxisX = 12;
-int noOfPerAxisY = 8;
+import '../../../utils/Constants.dart';
+
 
 Future cropSquare(File imageFile, bool flip) async {
   List<File> crop = [];
   var bytes = await imageFile.readAsBytes();
   imageLib.Image? src = imageLib.decodeImage(bytes);
 
-  var cropSizeX = src!.width ~/ noOfPerAxisX ;
-  var cropSizeY = src.height ~/ noOfPerAxisY ;
+  var cropSizeX = src!.width ~/ GridConfig.noOfPixelsPerAxisX ;
+  var cropSizeY = src.height ~/ GridConfig.noOfPixelsPerAxisY  ;
 
-  for(int i = 0;i<noOfPerAxisY;i++){
-    for(int j = 0;j<noOfPerAxisX;j++){
+  for(int i = 0;i<GridConfig.noOfPixelsPerAxisY;i++){
+    for(int j = 0;j<GridConfig.noOfPixelsPerAxisX ;j++){
       imageLib.Image destImage =
       imageLib.copyCrop(src, j*cropSizeX, i*cropSizeY, cropSizeX, cropSizeY);
 
@@ -48,19 +48,4 @@ Future cropSquare(File imageFile, bool flip) async {
 
   return crop;
 
-}
-
-Future<String> getFilePath() async {
-  Directory appDocumentsDirectory = await getApplicationDocumentsDirectory(); // 1
-  String appDocumentsPath = appDocumentsDirectory.path; // 2
-  String filePath = '$appDocumentsPath/2022-03-30T08:53:16.555051Z.png'; // 3
-
-  return filePath;
-}
-
-void readFile() async {
-  File file = File(await getFilePath()); // 1
-  String fileContent = await file.readAsString(); // 2
-
-  print('File Content: $fileContent');
 }

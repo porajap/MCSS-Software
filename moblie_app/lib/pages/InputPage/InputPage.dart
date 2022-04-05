@@ -135,7 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _image = newImage;
     });
-    print(_image);
+    print('imagePath: $_image');
   }
 
   Widget _checkBox(String evaluate, int index) {

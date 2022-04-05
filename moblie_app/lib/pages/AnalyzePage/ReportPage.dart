@@ -19,7 +19,7 @@ import '../../utils/Constants.dart';
 import '../../utils/PlateConfig.dart';
 import '../../utils/TextConfig.dart';
 import 'cpmponents/Graphgenerator.dart';
-import '../InputPage/components/RGBgenerator.dart';
+import 'cpmponents/RGBgenerator.dart';
 import '../../models/ReportInfo.dart';
 import 'cpmponents/reportHeader.dart';
 
@@ -36,7 +36,7 @@ class ReportPage extends StatefulWidget {
 class _ReportPageState extends State<ReportPage> {
   final GlobalKey<State<StatefulWidget>> _printKey = GlobalKey();
   bool waiting = true;
-  List<Color> colors = [];
+  Map<String, List<Color>>? colors;
   List<int> red = [];
   List<int> green = [];
   List<int> blue = [];
@@ -67,10 +67,20 @@ class _ReportPageState extends State<ReportPage> {
     setState(() {});
   }
 
+  calCon() {
+    List<double> con = [];
+    for (double i in widget.report.con[widget.report.evaluate]!) {
+      for (int j = 0; j < 5; j++) {
+        con.add(i);
+      }
+    }
+    return con = con + con.toList();
+  }
+
   conStandard() async {
-    List<double> con = widget.report.con[widget.report.evaluate]!;
+    // print(con);
     List<double> standard = widget.report.calStandard();
-    equation = calRsquare(standard, con + con);
+    equation = calRsquare(standard, calCon());
     logger.d(equation);
   }
 
@@ -82,7 +92,7 @@ class _ReportPageState extends State<ReportPage> {
         // print(i);
       }
     }
-    print(selected.length);
+    print('#selectedCrop: ${selected.length}');
     return selected;
   }
 
@@ -118,7 +128,7 @@ class _ReportPageState extends State<ReportPage> {
               if (index < plate.pnpStandard.length) {
                 title = 'Std';
                 concentrate = con[i].toStringAsFixed(2);
-                rgbCode = widget.report.standard[i].toStringAsFixed(0);
+                rgbCode = widget.report.standard[i * 5].toStringAsFixed(0);
                 i++;
               } else {
                 var number = index % 10;
@@ -152,17 +162,15 @@ class _ReportPageState extends State<ReportPage> {
     imageBytes = await _readFileByte(widget.imageFile);
     // print(imageBytes);
     colors = await compute(extractPixelsColors, imageBytes);
-    red = getColorValue(colors, 'red');
-    green = getColorValue(colors, 'green');
-    blue = getColorValue(colors, 'blue');
-
+    colors!.forEach((key, value) {
+      red.addAll(getColorValue(colors![key]!, 'red'));
+      green.addAll(getColorValue(colors![key]!, 'green'));
+      blue.addAll(getColorValue(colors![key]!, 'blue'));
+    });
+    // print(red.length);
     widget.report.red = red;
     widget.report.green = green;
     widget.report.blue = blue;
-    // calScatter();
-    // print(widget.report.red);
-    // print(green);
-    // print(blue);
   }
 
   Future<Uint8List> _readFileByte(File? filePath) async {
@@ -181,12 +189,11 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   List<ChartData> calScatter(String type) {
-    List<double> con = widget.report.con[widget.report.evaluate]!;
     result = calConcentrate(equation, widget.report.calSample());
 
-    print('#calScatter of Standard complete');
+    print('#calScatter complete');
     return getData(
-        type == PreferenceKey.standard ? con + con : result,
+        type == PreferenceKey.standard ? calCon() : result,
         type == PreferenceKey.standard
             ? widget.report.calStandard()
             : widget.report.calSample());
@@ -198,8 +205,67 @@ class _ReportPageState extends State<ReportPage> {
     List<double> sample = [for (double i = 180; i <= zero + 20; i++) i];
     result = calConcentrate(equation, sample);
 
-    print('#calLine of Standard complete');
+    print('#calLine complete');
     return getData(result, sample);
+  }
+
+  Widget _showChart() {
+    return Center(
+      child: Container(
+        height: 400,
+        //Initialize chart
+        child: waiting
+            ? CircularProgressIndicator()
+            : SfCartesianChart(
+                tooltipBehavior: TooltipBehavior(
+                    enable: true,
+                    tooltipPosition: TooltipPosition.pointer,
+                    borderColor: Colors.red,
+                    borderWidth: 5,
+                    color: Colors.lightBlue),
+                title: ChartTitle(
+                  text: 'Standard Linear Regression',
+                  textStyle: TextStyle(fontSize: 12),
+                ),
+                primaryXAxis: widget.report.evaluate == PreferenceKey.potassium
+                    ? NumericAxis(minimum: 0, interval: 10, maximum: 30)
+                    : NumericAxis(minimum: 0, interval: 0.5, maximum: 5),
+                legend: Legend(
+                    isVisible: true,
+                    position: LegendPosition.bottom,
+                    overflowMode: LegendItemOverflowMode.wrap),
+                primaryYAxis:
+                    NumericAxis(minimum: 185, maximum: 255, interval: 5),
+                series: <CartesianSeries>[
+                  ScatterSeries<ChartData, double>(
+                      legendItemText: PreferenceKey.standard,
+                      enableTooltip: true,
+                      dataSource: calScatter(PreferenceKey.standard),
+                      xValueMapper: (ChartData data, _) => data.x,
+                      yValueMapper: (ChartData data, _) => data.y),
+                  LineSeries<ChartData, double>(
+                      legendItemText: 'y = ' +
+                          equation.coefficient(1).toStringAsFixed(3) +
+                          'x' +
+                          '+' +
+                          equation.coefficient(0).toStringAsFixed(3) +
+                          ' (R^2 =' +
+                          equation.R2().toStringAsFixed(3) +
+                          ')',
+                      enableTooltip: true,
+                      dataSource: calLine(),
+                      xValueMapper: (ChartData data, _) => data.x,
+                      yValueMapper: (ChartData data, _) => data.y),
+                  ScatterSeries<ChartData, double>(
+                      legendItemText: PreferenceKey.sample,
+                      enableTooltip: true,
+                      dataSource: calScatter(PreferenceKey.sample),
+                      xValueMapper: (ChartData data, _) => data.x,
+                      yValueMapper: (ChartData data, _) => data.y),
+                ],
+              ),
+      ),
+    );
   }
 
   @override
@@ -230,75 +296,7 @@ class _ReportPageState extends State<ReportPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   reportHeader(report.name, report.evaluate),
-                  Center(
-                    child: Container(
-                      // width: MediaQuery.of(context).size.width,
-                      // height: MediaQuery.of(context).size.height * 0.3,
-                      //Initialize chart
-                      child: waiting
-                          ? CircularProgressIndicator()
-                          : SfCartesianChart(
-                              tooltipBehavior: TooltipBehavior(
-                                  enable: true,
-                                  tooltipPosition: TooltipPosition.pointer,
-                                  borderColor: Colors.red,
-                                  borderWidth: 5,
-                                  color: Colors.lightBlue),
-                              title: ChartTitle(
-                                text: 'Standard Linear Regression',
-                                textStyle: TextStyle(fontSize: 12),
-                              ),
-                              primaryXAxis: widget.report.evaluate ==
-                                      PreferenceKey.potassium
-                                  ? NumericAxis(
-                                      minimum: 0, interval: 10, maximum: 30)
-                                  : NumericAxis(
-                                      minimum: 0, interval: 0.5, maximum: 5),
-                              legend: Legend(
-                                  isVisible: true,
-                                  position: LegendPosition.bottom,
-                                  overflowMode: LegendItemOverflowMode.wrap),
-                              primaryYAxis: NumericAxis(
-                                  minimum: 180, maximum: 260, interval: 10),
-                              series: <CartesianSeries>[
-                                ScatterSeries<ChartData, double>(
-                                    legendItemText: PreferenceKey.standard,
-                                    enableTooltip: true,
-                                    dataSource:
-                                        calScatter(PreferenceKey.standard),
-                                    xValueMapper: (ChartData data, _) => data.x,
-                                    yValueMapper: (ChartData data, _) =>
-                                        data.y),
-                                LineSeries<ChartData, double>(
-                                    legendItemText: 'y = ' +
-                                        equation
-                                            .coefficient(1)
-                                            .toStringAsFixed(3) +
-                                        'x' +
-                                        '+' +
-                                        equation
-                                            .coefficient(0)
-                                            .toStringAsFixed(3) +
-                                        ' (R^2 =' +
-                                        equation.R2().toStringAsFixed(3) +
-                                        ')',
-                                    enableTooltip: true,
-                                    dataSource: calLine(),
-                                    xValueMapper: (ChartData data, _) => data.x,
-                                    yValueMapper: (ChartData data, _) =>
-                                        data.y),
-                                ScatterSeries<ChartData, double>(
-                                    legendItemText: PreferenceKey.sample,
-                                    enableTooltip: true,
-                                    dataSource:
-                                        calScatter(PreferenceKey.sample),
-                                    xValueMapper: (ChartData data, _) => data.x,
-                                    yValueMapper: (ChartData data, _) =>
-                                        data.y),
-                              ],
-                            ),
-                    ),
-                  ),
+                  _showChart(),
                   SizedBox(height: 10),
                   Container(child: _showResult()),
                 ],
