@@ -211,12 +211,12 @@ class _ReportPageState extends State<ReportPage> {
 
   Widget _showChart() {
     return Center(
-      child: Container(
-        height: 400,
-        //Initialize chart
-        child: waiting
-            ? CircularProgressIndicator()
-            : SfCartesianChart(
+      child: waiting
+          ? CircularProgressIndicator()
+          : Container(
+              height: 400,
+              //Initialize chart
+              child: SfCartesianChart(
                 tooltipBehavior: TooltipBehavior(
                     enable: true,
                     tooltipPosition: TooltipPosition.pointer,
@@ -234,8 +234,9 @@ class _ReportPageState extends State<ReportPage> {
                     isVisible: true,
                     position: LegendPosition.bottom,
                     overflowMode: LegendItemOverflowMode.wrap),
-                primaryYAxis:
-                    NumericAxis(minimum: 185, maximum: 255, interval: 5),
+                primaryYAxis: widget.report.evaluate == PreferenceKey.potassium
+                    ? NumericAxis(minimum: 200, maximum: 255, interval: 5)
+                    : NumericAxis(minimum: 185, maximum: 255, interval: 5),
                 series: <CartesianSeries>[
                   ScatterSeries<ChartData, double>(
                       legendItemText: PreferenceKey.standard,
@@ -264,7 +265,7 @@ class _ReportPageState extends State<ReportPage> {
                       yValueMapper: (ChartData data, _) => data.y),
                 ],
               ),
-      ),
+            ),
     );
   }
 
