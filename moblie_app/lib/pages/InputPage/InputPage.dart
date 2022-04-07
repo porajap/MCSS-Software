@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bot_toast/bot_toast.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:moblie_app/models/ReportInfo.dart';
 import 'package:moblie_app/utils/TextConfig.dart';
 
@@ -30,6 +31,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
+    FlutterNativeSplash.remove();
     super.initState();
     reportName.clear();
     // report.evaluate = dropdownValue;
@@ -169,15 +171,6 @@ class _MyHomePageState extends State<MyHomePage> {
     var row3 = List.generate(10, (index) => index + 62);
     var row4 = List.generate(10, (index) => index + 74);
     sample = row1 + row2 + row3 + row4;
-    // if (label.containsKey(index)) {
-    //   return Container(
-    //     alignment: Alignment.center,
-    //     // decoration: BoxDecoration(
-    //     //   border: Border.all(color: Colors.grey),
-    //     // ),
-    //     child: Text(label[index]!),
-    //   );
-    // }
     if (evaluate == 'Phosphate' ||
         evaluate == 'Nitrate' ||
         evaluate == 'Potassium') {
@@ -286,7 +279,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Modern-CSS v.1"),
+        title: Text("Modern-CSS v.1", style: StyleText.appBar),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -360,7 +353,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         96,
                                         (index) => _checkBox(
                                             dropdownValue, index + 1)),
-                                  )
+                                  ),
                                 ],
                               ),
                             ),

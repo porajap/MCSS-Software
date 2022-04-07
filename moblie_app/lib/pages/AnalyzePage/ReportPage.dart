@@ -14,7 +14,7 @@ import 'package:moblie_app/pages/AnalyzePage/cpmponents/PDFprintgenerate.dart';
 import 'package:scidart/numdart.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-import '../../main.dart';
+import '../../myApp.dart';
 import '../../utils/Constants.dart';
 import '../../utils/PlateConfig.dart';
 import '../../utils/TextConfig.dart';
@@ -101,61 +101,6 @@ class _ReportPageState extends State<ReportPage> {
     var length = file.length;
     print('#cropPerImage: $length');
     file = selectImage(file);
-  }
-
-  Widget _showResult() {
-    List<double> con = widget.report.con[widget.report.evaluate]!;
-    con = con + con;
-
-    int i = 0;
-    int j = 0;
-    int n = -1;
-
-    return file.length == 0
-        ? CircularProgressIndicator()
-        : GridView.builder(
-            physics: NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 5,
-            ),
-            itemCount: file.length,
-            itemBuilder: (BuildContext ctx, index) {
-              String title;
-              String concentrate;
-              String rgbCode;
-
-              if (index < plate.pnpStandard.length) {
-                title = 'Std';
-                concentrate = con[i].toStringAsFixed(2);
-                rgbCode = widget.report.standard[i * 5].toStringAsFixed(0);
-                i++;
-              } else {
-                var number = index % 10;
-                if (number == 0) n++;
-                title = plate.label[n] + plate.no[number].toString();
-                concentrate = result[j].toStringAsFixed(2);
-                rgbCode = widget.report.sample[j].toStringAsFixed(0);
-                j++;
-              }
-              return Container(
-                child: Column(
-                  children: [
-                    Text(title + '=' + '$concentrate',
-                        style: StyleText.resultText),
-                    Image.file(
-                      file[index],
-                      fit: BoxFit.contain,
-                    ),
-                    Text(
-                      rgbCode,
-                      style: StyleText.resultText,
-                    )
-                  ],
-                ),
-              );
-            },
-          );
   }
 
   Future<void> extractColors() async {
@@ -267,6 +212,61 @@ class _ReportPageState extends State<ReportPage> {
               ),
             ),
     );
+  }
+
+ Widget _showResult() {
+    List<double> con = widget.report.con[widget.report.evaluate]!;
+    con = con + con;
+
+    int i = 0;
+    int j = 0;
+    int n = -1;
+
+    return file.length == 0
+        ? CircularProgressIndicator()
+        : GridView.builder(
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 5,
+            ),
+            itemCount: file.length,
+            itemBuilder: (BuildContext ctx, index) {
+              String title;
+              String concentrate;
+              String rgbCode;
+
+              if (index < plate.pnpStandard.length) {
+                title = 'Std';
+                concentrate = con[i].toStringAsFixed(2);
+                rgbCode = widget.report.standard[i * 5].toStringAsFixed(0);
+                i++;
+              } else {
+                var number = index % 10;
+                if (number == 0) n++;
+                title = plate.label[n] + plate.no[number].toString();
+                concentrate = result[j].toStringAsFixed(2);
+                rgbCode = widget.report.sample[j].toStringAsFixed(0);
+                j++;
+              }
+              return Container(
+                child: Column(
+                  children: [
+                    Text(title + '=' + '$concentrate',
+                        style: StyleText.resultText),
+                    Image.file(
+                      file[index],
+                      fit: BoxFit.contain,
+                    ),
+                    Text(
+                      rgbCode,
+                      style: StyleText.resultText,
+                    )
+                  ],
+                ),
+              );
+            },
+          );
   }
 
   @override

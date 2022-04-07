@@ -4,7 +4,7 @@ import 'package:scidart/numdart.dart';
 import 'package:scidart/scidart.dart';
 import 'package:flutter/material.dart';
 
-import '../../../main.dart';
+import '../../../myApp.dart';
 
 class ChartData {
   ChartData(this.x, this.y);

@@ -1,10 +1,8 @@
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as imageLib;
 import 'package:moblie_app/utils/PlateConfig.dart';
-
-import '../../../main.dart';
+import '../../../myApp.dart';
 import '../../../utils/Constants.dart';
 
 Plate plate = Plate();
