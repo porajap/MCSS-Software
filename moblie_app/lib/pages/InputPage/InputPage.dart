@@ -6,6 +6,7 @@ import 'package:moblie_app/models/ReportInfo.dart';
 import 'package:moblie_app/utils/TextConfig.dart';
 
 import '../../utils/Constants.dart';
+import '../../utils/PlateConfig.dart';
 import 'components/InputDecoration.dart';
 import '../AnalyzePage/ReportPage.dart';
 import 'package:flutter/material.dart';
@@ -142,47 +143,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _checkBox(String evaluate, int index) {
     Widget? isIcon;
-    Map<int, String> label = {
-      2: '1',
-      3: '2',
-      4: '3',
-      5: '4',
-      6: '5',
-      7: '6',
-      8: '7',
-      9: '8',
-      10: '9',
-      11: '10',
-      12: '11',
-      13: '12',
-      14: 'A',
-      27: 'B',
-      40: 'C',
-      53: 'D',
-      66: 'E',
-      79: 'F',
-      92: 'G',
-      105: 'H'
-    };
-    List<int> standard = [14, 15, 16, 17, 18, 26, 27, 28, 29, 30];
-    List<int> sample = [];
-    var row1 = List.generate(10, (index) => index + 38);
-    var row2 = List.generate(10, (index) => index + 50);
-    var row3 = List.generate(10, (index) => index + 62);
-    var row4 = List.generate(10, (index) => index + 74);
-    sample = row1 + row2 + row3 + row4;
     if (evaluate == 'Phosphate' ||
         evaluate == 'Nitrate' ||
         evaluate == 'Potassium') {
       //standard
-      if (standard.contains(index)) {
+      if (Plate.pnpStandard.contains(index)) {
         isIcon = Icon(
           Icons.check_circle_outline_outlined,
           color: Colors.green,
         );
       }
       //sample
-      if (sample.contains(index)) {
+      if (Plate.pnpSample!.contains(index)) {
         isIcon = Icon(
           Icons.check_circle_outline_outlined,
           color: Colors.red,
@@ -313,8 +285,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                   onPressed: _showImageDialog,
                                   child: Text(
                                     imageFile == null
-                                        ? "Browse image"
-                                        : "Change image",
+                                        ? "อัพโหลดรูปภาพ"
+                                        : "เปลี่ยนรูปภาพ",
                                     style: StyleText.buttonText,
                                   ),
                                 )
@@ -338,7 +310,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                           fit: BoxFit.fill)
                                       : Center(
                                           child: Text(
-                                            "No image selected",
+                                            "ไม่มีรูปภาพ",
                                             style: StyleText.normalText,
                                             textAlign: TextAlign.center,
                                           ),

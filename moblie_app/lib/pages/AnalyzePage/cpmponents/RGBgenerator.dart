@@ -41,7 +41,7 @@ Map<String, List<Color>> extractPixelsColors(Uint8List? bytes) {
     for (int j = 1; j < GridConfig.noOfPixelsPerAxisY + 1; j++) {
       for (int i = 1; i < GridConfig.noOfPixelsPerAxisX + 1; i++) {
         int? pixel;
-        if (plate.pnpStandard.contains(no)) {
+        if (Plate.pnpStandard.contains(no)) {
           Color pixel1 = abgrToColor(
               (image?.getPixel(xChunk * i - midX, top * j - midY))!);
           var pixel2 = abgrToColor(
@@ -58,7 +58,7 @@ Map<String, List<Color>> extractPixelsColors(Uint8List? bytes) {
           colorOfStandard.add(pixel3);
           colorOfStandard.add(pixel4);
           colorOfStandard.add(pixel5);
-        } else if (plate.pnpSample.contains(no)) {
+        } else if (Plate.pnpSample!.contains(no)) {
           pixel = image?.getPixel(xChunk * i - midX, yChunk * j - midY);
           pixels.add(pixel);
           Color c = abgrToColor(pixel!);

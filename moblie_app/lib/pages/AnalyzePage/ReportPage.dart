@@ -15,6 +15,7 @@ import 'package:scidart/numdart.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../myApp.dart';
+import '../../utils/ColorConfig.dart';
 import '../../utils/Constants.dart';
 import '../../utils/PlateConfig.dart';
 import '../../utils/TextConfig.dart';
@@ -87,7 +88,7 @@ class _ReportPageState extends State<ReportPage> {
   selectImage(List<File> file) {
     List<File> selected = [];
     for (int i = 1; i < file.length + 1; i++) {
-      if (plate.pnpStandard.contains(i) || plate.pnpSample.contains(i)) {
+      if (Plate.pnpStandard.contains(i) || Plate.pnpSample!.contains(i)) {
         selected.add(file[i - 1]);
         // print(i);
       }
@@ -214,7 +215,7 @@ class _ReportPageState extends State<ReportPage> {
     );
   }
 
- Widget _showResult() {
+  Widget _showResult() {
     List<double> con = widget.report.con[widget.report.evaluate]!;
     con = con + con;
 
@@ -236,7 +237,7 @@ class _ReportPageState extends State<ReportPage> {
               String concentrate;
               String rgbCode;
 
-              if (index < plate.pnpStandard.length) {
+              if (index < Plate.pnpStandard.length) {
                 title = 'Std';
                 concentrate = con[i].toStringAsFixed(2);
                 rgbCode = widget.report.standard[i * 5].toStringAsFixed(0);
@@ -278,16 +279,16 @@ class _ReportPageState extends State<ReportPage> {
         appBar: AppBar(
           actions: [
             IconButton(
+              color: ColorCode.iconsAppBar,
               onPressed: () {
-                // extractColors();
                 printScreen(_printKey);
               },
-              icon: Icon(Icons.print_rounded),
+              icon: Icon(
+                Icons.print_rounded,
+              ),
             )
           ],
-          title: Text(
-            'Report',
-          ),
+          title: Text('Report', style: StyleText.appBar),
         ),
         body: SingleChildScrollView(
           child: RepaintBoundary(
