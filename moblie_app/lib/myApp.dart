@@ -31,20 +31,22 @@ class MyApp extends StatelessWidget {
         future: Init.instance.initialize(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return MaterialApp(
-              home: SafeArea(
-                child: Scaffold(
-                  body: Container(
-                      color: Colors.white,
-                      child: Center(
-                          child: Image.asset(
-                        'lib/assets/images/Modren.png',
-                        // height: MediaQuery.of(context).size.height,
-                        // width: MediaQuery.of(context).size.width,
-                      ))),
-                ),
-              ),
-            );
+            // return MaterialApp(
+            //   home: SafeArea(
+            //     child: Scaffold(
+            //       body: Container(
+            //         // color: Colors.white,
+            //         // child: Center(
+            //         //   child: Image.asset(
+            //         //     'lib/assets/images/Modren.png',
+            //         //     // height: MediaQuery.of(context).size.height,
+            //         //     // width: MediaQuery.of(context).size.width,
+            //         //   ),
+            //         // ),
+            //       ),
+            //     ),
+            //   ),
+            // );
           }
           return MaterialApp(
             debugShowCheckedModeBanner: false,

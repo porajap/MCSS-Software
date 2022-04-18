@@ -38,20 +38,24 @@ Map<String, List<Color>> extractPixelsColors(Uint8List? bytes) {
     int midX = xChunk ~/ 2;
     int midY = yChunk ~/ 2;
     int no = 1;
+    midX = midX + 1;
+    midY = midY + 1;
+    // xChunk = xChunk + 1;
+    // yChunk = yChunk + 1;
     for (int j = 1; j < GridConfig.noOfPixelsPerAxisY + 1; j++) {
       for (int i = 1; i < GridConfig.noOfPixelsPerAxisX + 1; i++) {
         int? pixel;
         if (Plate.pnpStandard.contains(no)) {
           Color pixel1 = abgrToColor(
-              (image?.getPixel(xChunk * i - midX, top * j - midY))!);
-          var pixel2 = abgrToColor(
-              (image?.getPixel(left * i - midX, yChunk * j - midY))!);
-          var pixel3 = abgrToColor(
               (image?.getPixel(xChunk * i - midX, yChunk * j - midY))!);
-          var pixel4 = abgrToColor(
-              (image?.getPixel(right * i - midX, yChunk * j - midY))!);
-          var pixel5 = abgrToColor(
-              (image?.getPixel(xChunk * i - midX, down * j - midY))!);
+          var pixel2 =
+              abgrToColor((image?.getPixel(left * i - midX, down * j - midY))!);
+          var pixel3 = abgrToColor(
+              (image?.getPixel(right * i - midX, down * j - midY))!);
+          var pixel4 =
+              abgrToColor((image?.getPixel(left * i - midX, top * j - midY))!);
+          var pixel5 =
+              abgrToColor((image?.getPixel(right * i - midX, top * j - midY))!);
 
           colorOfStandard.add(pixel1);
           colorOfStandard.add(pixel2);

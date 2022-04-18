@@ -98,7 +98,7 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   cropImage() async {
-    file = await cropSquare(widget.imageFile!, true);
+    file = await cropSquare(widget.imageFile!, false);
     var length = file.length;
     print('#cropPerImage: $length');
     file = selectImage(file);
@@ -182,7 +182,7 @@ class _ReportPageState extends State<ReportPage> {
                     overflowMode: LegendItemOverflowMode.wrap),
                 primaryYAxis: widget.report.evaluate == PreferenceKey.potassium
                     ? NumericAxis(minimum: 200, maximum: 255, interval: 5)
-                    : NumericAxis(minimum: 185, maximum: 255, interval: 5),
+                    : NumericAxis(minimum: 160, maximum: 255, interval: 5),
                 series: <CartesianSeries>[
                   ScatterSeries<ChartData, double>(
                       legendItemText: PreferenceKey.standard,
@@ -246,7 +246,7 @@ class _ReportPageState extends State<ReportPage> {
                 var number = index % 10;
                 if (number == 0) n++;
                 title = plate.label[n] + plate.no[number].toString();
-                concentrate = result[j].toStringAsFixed(2);
+                concentrate = (result[j] * 2).toStringAsFixed(2);
                 rgbCode = widget.report.sample[j].toStringAsFixed(0);
                 j++;
               }
@@ -258,6 +258,8 @@ class _ReportPageState extends State<ReportPage> {
                     Image.file(
                       file[index],
                       fit: BoxFit.contain,
+                      height: 40,
+                      width: 50,
                     ),
                     Text(
                       rgbCode,
