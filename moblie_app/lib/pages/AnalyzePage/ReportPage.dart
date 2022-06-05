@@ -44,6 +44,7 @@ class _ReportPageState extends State<ReportPage> {
   late PolyFit equation;
   List<double> result = [];
   Uint8List? imageBytes;
+  List<double> con = [];
 
   List<File> file = [];
 
@@ -80,6 +81,8 @@ class _ReportPageState extends State<ReportPage> {
 
   conStandard() async {
     // print(con);
+    con = widget.report.con[widget.report.evaluate]!;
+
     List<double> standard = widget.report.calStandard();
     equation = calRsquare(standard, calCon());
     logger.d(equation);
@@ -136,7 +139,6 @@ class _ReportPageState extends State<ReportPage> {
 
   List<ChartData> calScatter(String type) {
     result = calConcentrate(equation, widget.report.calSample());
-
     print('#calScatter complete');
     return getData(
         type == PreferenceKey.standard ? calCon() : result,
@@ -146,9 +148,10 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   List<ChartData> calLine() {
+    var minimum = widget.report.calSample().reduce(min);
     var zero = -equation.coefficient(0) / equation.coefficient(1);
     // print(zero);
-    List<double> sample = [for (double i = 180; i <= zero + 20; i++) i];
+    List<double> sample = [for (double i = minimum; i <= zero + 20; i++) i];
     result = calConcentrate(equation, sample);
 
     print('#calLine complete');
@@ -156,6 +159,9 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   Widget _showChart() {
+    var minimum = widget.report.calSample().reduce(min);
+    var maximum = widget.report.calSample().reduce(max);
+
     return Center(
       child: waiting
           ? CircularProgressIndicator()
@@ -180,9 +186,11 @@ class _ReportPageState extends State<ReportPage> {
                     isVisible: true,
                     position: LegendPosition.bottom,
                     overflowMode: LegendItemOverflowMode.wrap),
-                primaryYAxis: widget.report.evaluate == PreferenceKey.potassium
-                    ? NumericAxis(minimum: 200, maximum: 255, interval: 5)
-                    : NumericAxis(minimum: 160, maximum: 255, interval: 5),
+                primaryYAxis: NumericAxis(
+                    minimum: minimum, maximum: maximum, interval: 5),
+                // widget.report.evaluate == PreferenceKey.potassium
+                //     ? NumericAxis(minimum: 200, maximum: 255, interval: 5)
+                //     : NumericAxis(minimum: 160, maximum: 255, interval: 5),
                 series: <CartesianSeries>[
                   ScatterSeries<ChartData, double>(
                       legendItemText: PreferenceKey.standard,
@@ -215,8 +223,89 @@ class _ReportPageState extends State<ReportPage> {
     );
   }
 
+  _showImage() {
+    return result.isEmpty
+        ? CircularProgressIndicator()
+        : Stack(children: [
+            Container(
+              height: 300,
+              child: Image.file(widget.imageFile!,
+                  semanticLabel: "96-well plates", fit: BoxFit.fill),
+            ),
+            for (int i = 1; i < 6; i++)
+              Positioned(
+                  child: Tooltip(
+                    padding: EdgeInsets.all(8.0),
+                    message:
+                        con.isEmpty ? "xx.xx" : con[i - 1].toStringAsFixed(2),
+                    child: Icon(Icons.check_circle_outline_outlined,
+                        color: Colors.green),
+                  ),
+                  top: 18.75 * 3,
+                  left: (MediaQuery.of(context).size.width * i / 12.0) + 3),
+            for (int i = 1; i < 6; i++)
+              Positioned(
+                  child: Tooltip(
+                    padding: EdgeInsets.all(8.0),
+                    message:
+                        con.isEmpty ? "xx.xx" : con[i - 1].toStringAsFixed(2),
+                    child: Icon(Icons.check_circle_outline_outlined,
+                        color: Colors.green),
+                  ),
+                  top: 18.75 * 5,
+                  left: (MediaQuery.of(context).size.width * i / 12.0) + 3),
+            for (int i = 1; i < 11; i++)
+              Positioned(
+                  child: Tooltip(
+                    padding: EdgeInsets.all(8.0),
+                    message: result.isEmpty
+                        ? "xx.xx"
+                        : (result[i - 1] * 2).toStringAsFixed(2),
+                    child: Icon(Icons.check_circle_outline_outlined,
+                        color: Colors.red),
+                  ),
+                  top: 18.75 * 7,
+                  left: (MediaQuery.of(context).size.width * i / 12.0) + 3),
+            for (int i = 1; i < 11; i++)
+              Positioned(
+                  child: Tooltip(
+                    padding: EdgeInsets.all(8.0),
+                    message: result.isEmpty
+                        ? "xx.xx"
+                        : (result[i + 10 - 1] * 2).toStringAsFixed(2),
+                    child: Icon(Icons.check_circle_outline_outlined,
+                        color: Colors.red),
+                  ),
+                  top: 18.75 * 9,
+                  left: (MediaQuery.of(context).size.width * i / 12.0) + 3),
+            for (int i = 1; i < 11; i++)
+              Positioned(
+                  child: Tooltip(
+                    padding: EdgeInsets.all(8.0),
+                    message: result.isEmpty
+                        ? "xx.xx"
+                        : (result[i + 20 - 1] * 2).toStringAsFixed(2),
+                    child: Icon(Icons.check_circle_outline_outlined,
+                        color: Colors.red),
+                  ),
+                  top: 18.75 * 11,
+                  left: (MediaQuery.of(context).size.width * i / 12.0) + 3),
+            for (int i = 1; i < 11; i++)
+              Positioned(
+                  child: Tooltip(
+                    padding: EdgeInsets.all(8.0),
+                    message: result.isEmpty
+                        ? "xx.xx"
+                        : (result[i + 30 - 1] * 2).toStringAsFixed(2),
+                    child: Icon(Icons.check_circle_outline_outlined,
+                        color: Colors.red),
+                  ),
+                  top: 18.75 * 13,
+                  left: (MediaQuery.of(context).size.width * i / 12.0) + 3)
+          ]);
+  }
+
   Widget _showResult() {
-    List<double> con = widget.report.con[widget.report.evaluate]!;
     con = con + con;
 
     int i = 0;
@@ -296,11 +385,15 @@ class _ReportPageState extends State<ReportPage> {
           child: RepaintBoundary(
             key: _printKey,
             child: Container(
+              width: MediaQuery.of(context).size.width,
+              // ,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                // mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   reportHeader(report.name, report.evaluate),
                   _showChart(),
+                  SizedBox(height: 10),
+                  _showImage(),
                   SizedBox(height: 10),
                   Container(child: _showResult()),
                 ],

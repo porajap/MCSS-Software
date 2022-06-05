@@ -18,7 +18,7 @@ class ReportInfo {
   List<double> sample = [];
   Map<String, List<double>> con = {
     PreferenceKey.phosphate: [0, 0.5, 1, 2, 3],
-    PreferenceKey.nitrate: [0, 0.1, 0.5, 1, 2.5],
+    PreferenceKey.nitrate: [0, 0.1, 0.5, 1, 2.5], // for testing only
     // PreferenceKey.nitrate: [0, 0.5, 1, 2.5, 5],
     PreferenceKey.potassium: [0, 5, 10, 20, 30]
   };

@@ -198,7 +198,7 @@ class _MyHomePageState extends State<MyHomePage> {
       children: [
         Text(PreferenceKey.nameTitle, style: StyleText.headerText),
         SizedBox(
-          height: 0.5,
+          height: 5,
         ),
         TextFormField(
           controller: reportName,
@@ -213,16 +213,17 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         Text(PreferenceKey.evaluateTitle, style: StyleText.headerText),
         SizedBox(
-          height: 0.5,
+          height: 5,
         ),
         InputDecorator(
           decoration: InputDecorations.inputDec(hintText: ''),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               borderRadius: BorderRadius.all(Radius.circular(10)),
+              hint: Text('เลือกธาตุอาหาร'),
               value: dropdownValue,
               icon: const Icon(Icons.arrow_drop_down),
-              elevation: 12,
+              elevation: 4,
               style: StyleText.normalText,
               onChanged: (String? newValue) {
                 setState(() {
@@ -253,91 +254,97 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text("Modern-CSS v.1", style: StyleText.appBar),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          // mainAxisSize: MainAxisSize.max,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Center(
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      _inputReportName(),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  PreferenceKey.imageTitle,
-                                  style: StyleText.headerText,
-                                ),
-                                Spacer(),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    textStyle: StyleText.normalText,
-                                  ),
-                                  onPressed: _showImageDialog,
-                                  child: Text(
-                                    imageFile == null
-                                        ? "อัพโหลดรูปภาพ"
-                                        : "เปลี่ยนรูปภาพ",
-                                    style: StyleText.buttonText,
-                                  ),
-                                )
-                              ],
-                            ),
-                            Container(
-                              constraints: BoxConstraints(
-                                maxWidth: MediaQuery.of(context).size.width,
-                                maxHeight: 252,
-                              ),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.rectangle,
-                              ),
-                              child: Stack(
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
+        child: SingleChildScrollView(
+          child: Column(
+            // mainAxisSize: MainAxisSize.max,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 20,
+                        ),
+                        _inputReportName(),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  imageFile != null
-                                      ? Image.file(imageFile!,
-                                          width: double.infinity,
-                                          height: double.infinity,
-                                          semanticLabel: "96-well plates",
-                                          fit: BoxFit.fill)
-                                      : Center(
-                                          child: Text(
-                                            "ไม่มีรูปภาพ",
-                                            style: StyleText.normalText,
-                                            textAlign: TextAlign.center,
-                                          ),
-                                          widthFactor: double.infinity,
-                                          heightFactor: double.infinity,
-                                        ),
-                                  GridView.count(
-                                    shrinkWrap: true,
-                                    // physics: NeverScrollableScrollPhysics(),
-                                    crossAxisCount: 12,
-                                    children: List.generate(
-                                        96,
-                                        (index) => _checkBox(
-                                            dropdownValue, index + 1)),
+                                  Text(
+                                    PreferenceKey.imageTitle,
+                                    style: StyleText.headerText,
                                   ),
+                                  Spacer(),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      textStyle: StyleText.normalText,
+                                    ),
+                                    onPressed: _showImageDialog,
+                                    child: Text(
+                                      imageFile == null
+                                          ? "อัพโหลดรูปภาพ"
+                                          : "เปลี่ยนรูปภาพ",
+                                      style: StyleText.buttonText,
+                                    ),
+                                  )
                                 ],
                               ),
-                            ),
-                          ]),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      _analyzButton()
-                    ]),
+                              Container(
+                                constraints: BoxConstraints(
+                                  maxWidth: MediaQuery.of(context).size.width,
+                                  maxHeight: 252,
+                                ),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.rectangle,
+                                ),
+                                child: Stack(
+                                  children: [
+                                    imageFile != null
+                                        ? Image.file(imageFile!,
+                                            width: double.infinity,
+                                            height: double.infinity,
+                                            semanticLabel: "96-well plates",
+                                            fit: BoxFit.fill)
+                                        : Center(
+                                            child: Text(
+                                              "ไม่มีรูปภาพ",
+                                              style: StyleText.normalText,
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            widthFactor: double.infinity,
+                                            heightFactor: double.infinity,
+                                          ),
+                                    GridView.count(
+                                      shrinkWrap: true,
+                                      // physics: NeverScrollableScrollPhysics(),
+                                      crossAxisCount: 12,
+                                      children: List.generate(
+                                          96,
+                                          (index) => _checkBox(
+                                              dropdownValue, index + 1)),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ]),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        _analyzButton()
+                      ]),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
