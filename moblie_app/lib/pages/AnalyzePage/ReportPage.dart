@@ -235,6 +235,8 @@ class _ReportPageState extends State<ReportPage> {
             for (int i = 1; i < 6; i++)
               Positioned(
                   child: Tooltip(
+                    triggerMode: TooltipTriggerMode.tap,
+                    preferBelow: false,
                     padding: EdgeInsets.all(8.0),
                     message:
                         con.isEmpty ? "xx.xx" : con[i - 1].toStringAsFixed(2),
@@ -246,6 +248,8 @@ class _ReportPageState extends State<ReportPage> {
             for (int i = 1; i < 6; i++)
               Positioned(
                   child: Tooltip(
+                    triggerMode: TooltipTriggerMode.tap,
+                    preferBelow: false,
                     padding: EdgeInsets.all(8.0),
                     message:
                         con.isEmpty ? "xx.xx" : con[i - 1].toStringAsFixed(2),
@@ -257,6 +261,8 @@ class _ReportPageState extends State<ReportPage> {
             for (int i = 1; i < 11; i++)
               Positioned(
                   child: Tooltip(
+                    triggerMode: TooltipTriggerMode.tap,
+                    preferBelow: false,
                     padding: EdgeInsets.all(8.0),
                     message: result.isEmpty
                         ? "xx.xx"
@@ -269,6 +275,8 @@ class _ReportPageState extends State<ReportPage> {
             for (int i = 1; i < 11; i++)
               Positioned(
                   child: Tooltip(
+                    triggerMode: TooltipTriggerMode.tap,
+                    preferBelow: false,
                     padding: EdgeInsets.all(8.0),
                     message: result.isEmpty
                         ? "xx.xx"
@@ -281,6 +289,8 @@ class _ReportPageState extends State<ReportPage> {
             for (int i = 1; i < 11; i++)
               Positioned(
                   child: Tooltip(
+                    triggerMode: TooltipTriggerMode.tap,
+                    preferBelow: false,
                     padding: EdgeInsets.all(8.0),
                     message: result.isEmpty
                         ? "xx.xx"
@@ -293,6 +303,8 @@ class _ReportPageState extends State<ReportPage> {
             for (int i = 1; i < 11; i++)
               Positioned(
                   child: Tooltip(
+                    triggerMode: TooltipTriggerMode.tap,
+                    preferBelow: false,
                     padding: EdgeInsets.all(8.0),
                     message: result.isEmpty
                         ? "xx.xx"
@@ -379,21 +391,20 @@ class _ReportPageState extends State<ReportPage> {
               ),
             )
           ],
-          title: Text('Report', style: StyleText.appBar),
+          title: Text('รายงานผลวิเคราะห์', style: StyleText.appBar),
         ),
         body: SingleChildScrollView(
           child: RepaintBoundary(
             key: _printKey,
             child: Container(
               width: MediaQuery.of(context).size.width,
-              // ,
               child: Column(
                 // mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   reportHeader(report.name, report.evaluate),
                   _showChart(),
-                  SizedBox(height: 10),
-                  _showImage(),
+                  // SizedBox(height: 10),
+                  // _showImage(),
                   SizedBox(height: 10),
                   Container(child: _showResult()),
                 ],

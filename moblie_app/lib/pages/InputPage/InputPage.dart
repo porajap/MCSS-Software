@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:moblie_app/models/ReportInfo.dart';
+import 'package:moblie_app/pages/AnalyzePage/SummaryPage.dart';
 import 'package:moblie_app/utils/TextConfig.dart';
 
 import '../../utils/Constants.dart';
@@ -170,11 +171,33 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _analyzButton() {
+  Widget _analyzTap() {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-          textStyle: StyleText.normalText,
-          minimumSize: const Size.fromHeight(50)),
+        textStyle: StyleText.normalText,
+        minimumSize: const Size.fromHeight(50),
+      ),
+      onPressed: () {
+        imageFile == null || report.evaluate == PreferenceKey.inputForm
+            ? BotToast.showText(text: PreferenceKey.noti)
+            : Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) => SummaryPage(
+                          imageFile: _image,
+                          report: report,
+                        )));
+      },
+      child: Text(PreferenceKey.analyzTap, style: StyleText.buttonText),
+    );
+  }
+
+  Widget _analyzAll() {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        textStyle: StyleText.normalText,
+        minimumSize: const Size.fromHeight(50),
+      ),
       onPressed: () {
         imageFile == null || report.evaluate == PreferenceKey.inputForm
             ? BotToast.showText(text: PreferenceKey.noti)
@@ -188,7 +211,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               );
       },
-      child: Text(PreferenceKey.analyzButton, style: StyleText.buttonText),
+      child: Text(PreferenceKey.analyzAll, style: StyleText.buttonText),
     );
   }
 
@@ -267,11 +290,11 @@ class _MyHomePageState extends State<MyHomePage> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         SizedBox(
-                          height: 20,
+                          height: 10,
                         ),
                         _inputReportName(),
                         SizedBox(
-                          height: 20,
+                          height: 10,
                         ),
                         Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -339,7 +362,11 @@ class _MyHomePageState extends State<MyHomePage> {
                         SizedBox(
                           height: 10,
                         ),
-                        _analyzButton()
+                        _analyzTap(),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        _analyzAll()
                       ]),
                 ),
               ),

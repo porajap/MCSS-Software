@@ -9,11 +9,6 @@ class PreferenceKey {
     'Phosphate',
     'Nitrate',
     'Potassium',
-    'Blue_2',
-    'FE1',
-    'Dye3',
-    'Blue',
-    'S1_2'
   ];
   static const String standard = 'Standard';
   static const String sample = 'Sample';
@@ -29,6 +24,7 @@ class PreferenceKey {
 
   static const String inputForm = 'select evaluate';
   static const String noti = 'กรุณากรอกข้อมูลให้ครบ';
-  static const String analyzButton = 'วิเคราะห์';
+  static const String analyzTap = 'วิเคราะห์แบบคลิ๊กเลือก';
+  static const String analyzAll = 'วิเคราะห์แบบรวม';
   static const String imageTitle = 'รูปภาพที่วิเคราะห์: ';
 }

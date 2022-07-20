@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
+import 'pages/AnalyzePage/SummaryPage.dart';
 import 'pages/InputPage/InputPage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -31,22 +32,21 @@ class MyApp extends StatelessWidget {
         future: Init.instance.initialize(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            // return MaterialApp(
-            //   home: SafeArea(
-            //     child: Scaffold(
-            //       body: Container(
-            //         // color: Colors.white,
-            //         // child: Center(
-            //         //   child: Image.asset(
-            //         //     'lib/assets/images/Modren.png',
-            //         //     // height: MediaQuery.of(context).size.height,
-            //         //     // width: MediaQuery.of(context).size.width,
-            //         //   ),
-            //         // ),
-            //       ),
-            //     ),
-            //   ),
-            // );
+            return MaterialApp(
+              home: SafeArea(
+                child: Scaffold(
+                  body: Container(
+                    color: Colors.white,
+                    child: Center(
+                      child: Image.asset(
+                        'lib/assets/images/Modren.png',
+                        fit: BoxFit.fill,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
           }
           return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -56,7 +56,6 @@ class MyApp extends StatelessWidget {
             home: MyHomePage(),
             theme: ThemeData(
                 primarySwatch: ColorCode.appBarColor,
-                focusColor: Colors.purple,
                 textTheme: GoogleFonts.sarabunTextTheme()),
           );
         });
