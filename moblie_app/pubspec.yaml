@@ -59,7 +59,7 @@ flutter_icons:
   image_path: "lib/assets/images/Modren-css-logo.png"
 
 flutter_native_splash:
-  image:  lib/assets/images/Modren-css-logo.png
+  image:  "lib/assets/images/Modren-css-logo.png"
   color: "795548"
   fill: false
 
