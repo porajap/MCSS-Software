@@ -50,6 +50,9 @@ class _ReportPageState extends State<ReportPage> {
 
   Plate plate = Plate();
 
+  late var minimum;
+  late var maximum;
+
   @override
   void initState() {
     delay();
@@ -65,6 +68,8 @@ class _ReportPageState extends State<ReportPage> {
     await extractColors();
     await conStandard();
     await cropImage();
+    minimum = widget.report.calSample().reduce(min);
+    maximum = widget.report.calSample().reduce(max);
     waiting = false;
     setState(() {});
   }
@@ -148,10 +153,9 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   List<ChartData> calLine() {
-    var minimum = widget.report.calSample().reduce(min);
-    var zero = -equation.coefficient(0) / equation.coefficient(1);
+    // var zero = -equation.coefficient(0) / equation.coefficient(1);
     // print(zero);
-    List<double> sample = [for (double i = minimum; i <= zero + 20; i++) i];
+    List<double> sample = [for (double i = minimum; i <= maximum; i++) i];
     result = calConcentrate(equation, sample);
 
     print('#calLine complete');
@@ -159,9 +163,6 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   Widget _showChart() {
-    var minimum = widget.report.calSample().reduce(min);
-    var maximum = widget.report.calSample().reduce(max);
-
     return Center(
       child: waiting
           ? CircularProgressIndicator()
@@ -188,9 +189,6 @@ class _ReportPageState extends State<ReportPage> {
                     overflowMode: LegendItemOverflowMode.wrap),
                 primaryYAxis: NumericAxis(
                     minimum: minimum, maximum: maximum, interval: 5),
-                // widget.report.evaluate == PreferenceKey.potassium
-                //     ? NumericAxis(minimum: 200, maximum: 255, interval: 5)
-                //     : NumericAxis(minimum: 160, maximum: 255, interval: 5),
                 series: <CartesianSeries>[
                   ScatterSeries<ChartData, double>(
                       legendItemText: PreferenceKey.standard,
@@ -325,7 +323,9 @@ class _ReportPageState extends State<ReportPage> {
     int n = -1;
 
     return file.length == 0
-        ? CircularProgressIndicator()
+        ? SizedBox(
+            height: 10,
+          )
         : GridView.builder(
             physics: NeverScrollableScrollPhysics(),
             shrinkWrap: true,
@@ -402,6 +402,7 @@ class _ReportPageState extends State<ReportPage> {
                 // mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   reportHeader(report.name, report.evaluate),
+
                   _showChart(),
                   // SizedBox(height: 10),
                   // _showImage(),

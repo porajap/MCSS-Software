@@ -36,11 +36,11 @@ class MyApp extends StatelessWidget {
               home: SafeArea(
                 child: Scaffold(
                   body: Container(
-                    color: Colors.white,
+                    color: ColorCode.appBarColor,
                     child: Center(
                       child: Image.asset(
-                        'lib/assets/images/Modren.png',
-                        fit: BoxFit.fill,
+                        'lib/assets/images/Modren-css-logo.png',
+                        // fit: BoxFit.cover,
                       ),
                     ),
                   ),

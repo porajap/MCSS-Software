@@ -54,14 +54,14 @@ dependencies:
   image_pixels: ^3.0.0
 
 flutter_icons:
-  android:  true
+  android: true
   ios: true
-  image_path: "lib/assets/images/Modern.png"
+  image_path: "lib/assets/images/Modren-css-logo.png"
 
-# flutter_native_splash:
-#   image:  lib/assets/images/Modern.png
-#   color: "42a5f5"
-#   fill: true
+flutter_native_splash:
+  image:  lib/assets/images/Modren-css-logo.png
+  color: "795548"
+  fill: false
 
 dev_dependencies:
   flutter_test:
