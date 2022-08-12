@@ -16,6 +16,14 @@ class PreferenceKey {
   static const String nitrate = 'Nitrate';
   static const String potassium = 'Potassium';
 
+  static const String h_well_index = 'well_index';
+  static const String h_std_smp = 'STD/SMP';
+  static const String h_color_R = 'color_R';
+  static const String h_color_G = 'color_G';
+  static const String h_color_B = 'color_B';
+  static const String h_HSV = 'HSV';
+  static const String h_saturation = 'Saturation';
+
   static const String reportTitle =
       'รายงานผลการวิเคราะห์ธาตุอาหารในดินจากภาพถ่าย';
   static const String nameTitle = 'ชื่อการทดลอง: ';

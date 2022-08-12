@@ -275,7 +275,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Modern-CSS v.1", style: StyleText.appBar),
+        title: Text("M-CSS v.1", style: StyleText.appBar),
       ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),

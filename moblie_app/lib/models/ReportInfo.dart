@@ -13,6 +13,7 @@ class ReportInfo {
   List<int> red;
   List<int> green;
   List<int> blue;
+  ReportInfo(this.name, this.evaluate, this.red, this.green, this.blue);
 
   List<double> standard = [];
   List<double> sample = [];
@@ -24,7 +25,7 @@ class ReportInfo {
   };
 
   Plate plate = Plate();
-  ReportInfo(this.name, this.evaluate, this.red, this.green, this.blue);
+  
 
   List<double> calStandard() {
     // print(Plate.pnpStandard);

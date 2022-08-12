@@ -1,18 +1,24 @@
+import 'dart:ffi';
 import 'dart:io';
 import 'dart:ui';
 import 'dart:typed_data';
 import 'dart:async';
-import 'package:flutter/cupertino.dart';
+import 'package:csv/csv.dart';
+import 'package:excel/excel.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:moblie_app/load_data_csv.dart';
 
 import 'package:moblie_app/models/ReportInfo.dart';
 import 'package:moblie_app/pages/AnalyzePage/cpmponents/Capturegenerator.dart';
 import 'package:moblie_app/pages/AnalyzePage/cpmponents/PDFprintgenerate.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:open_file/open_file.dart';
 
 import 'package:scidart/numdart.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:syncfusion_flutter_xlsio/xlsio.dart' as exLib;
 
 import '../../myApp.dart';
 import '../../utils/ColorConfig.dart';
@@ -373,6 +379,82 @@ class _ReportPageState extends State<ReportPage> {
           );
   }
 
+  _showExportButton() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                textStyle: StyleText.normalText,
+                backgroundColor: Colors.green,
+              ),
+              onPressed: () {
+                generateCsv();
+              },
+              icon: Icon(
+                Icons.file_upload,
+              ),
+              label: Text('CSV')),
+        ),
+      ],
+    );
+  }
+
+  Future generateCsv() async {
+    List<List<String>> sample = [];
+    int j = 0;
+    while (j < widget.report.standard.length) {
+      List label = ['B', 'C'];
+      int x = j ~/ 5;
+      for (int i = 0; i < 5; i++) {
+        sample.add([
+          "${x < 5 ? label[0] : label[1]}${plate.no[x % 5]}",
+          "STD",
+          "${widget.report.red[j]}",
+          "${widget.report.green[j]}",
+          "${widget.report.blue[j]}",
+          "-",
+          "${con[x]}"
+        ]);
+        j++;
+      }
+    }
+    // print(sample.length);
+
+    List<List<String>> data = [
+          // ["No.", "Name", "Roll No."],
+          // ["1", "A", "100"],
+          // ["2", "B", "200"],
+          // ["3", "C", "300"]
+          [
+            "well_index",
+            "STD/SMP",
+            "color_R",
+            "color_G",
+            "color_B",
+            "HSV",
+            "saturation"
+          ]
+        ] +
+        sample.toList();
+    // print(data);
+    String csvData = ListToCsvConverter().convert(data);
+    final String directory = (await getExternalStorageDirectory())!.path;
+    final path = "$directory/m-css-${widget.report.name}.csv";
+    // print(directory);
+    final File file = File(path);
+    await file.writeAsString(csvData);
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) {
+          return LoadCsvDataScreen(title: widget.report.name, path: path);
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     var report = widget.report;
@@ -406,7 +488,7 @@ class _ReportPageState extends State<ReportPage> {
                   _showChart(),
                   // SizedBox(height: 10),
                   // _showImage(),
-                  SizedBox(height: 10),
+                  _showExportButton(),
                   Container(child: _showResult()),
                 ],
               ),

@@ -244,7 +244,7 @@ class _SummaryPageState extends State<SummaryPage> {
                               width: 10,
                             ),
                             Text(
-                                "Concentration of Samples: ${(result * 2).toStringAsFixed(2)} ug.mL-1",
+                                "Concentration of Samples: ${(result * 2).toStringAsFixed(2)} mg/kg",
                                 style: StyleText.headerText)
                           ]),
                     )
