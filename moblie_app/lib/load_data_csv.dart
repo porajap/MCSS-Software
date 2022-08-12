@@ -14,12 +14,12 @@ class LoadCsvDataScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("$title"),
+        title: Text("$title .csv"),
       ),
       body: FutureBuilder(
         future: loadingCsvData(path),
         builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
-          print(snapshot.data.toString());
+          // print(snapshot.data.toString());
           return snapshot.hasData
               ? Padding(
                   padding: const EdgeInsets.all(8.0),

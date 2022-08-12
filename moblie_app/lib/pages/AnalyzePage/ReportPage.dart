@@ -321,6 +321,8 @@ class _ReportPageState extends State<ReportPage> {
           ]);
   }
 
+  List<List<String>> smp = [];
+
   Widget _showResult() {
     con = con + con;
 
@@ -355,6 +357,15 @@ class _ReportPageState extends State<ReportPage> {
                 title = plate.label[n] + plate.no[number].toString();
                 concentrate = (result[j] * 2).toStringAsFixed(2);
                 rgbCode = widget.report.sample[j].toStringAsFixed(0);
+                smp.add([
+                  "$title",
+                  "SMP",
+                  "${widget.report.red[50 + j]}",
+                  "${widget.report.green[50 + j]}",
+                  "${widget.report.blue[50 + j]}",
+                  "-",
+                  "$concentrate"
+                ]);
                 j++;
               }
               return Container(
@@ -403,31 +414,28 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   Future generateCsv() async {
-    List<List<String>> sample = [];
+    List<List<String>> std = [];
     int j = 0;
     while (j < widget.report.standard.length) {
       List label = ['B', 'C'];
       int x = j ~/ 5;
       for (int i = 0; i < 5; i++) {
-        sample.add([
+        std.add([
           "${x < 5 ? label[0] : label[1]}${plate.no[x % 5]}",
           "STD",
           "${widget.report.red[j]}",
           "${widget.report.green[j]}",
           "${widget.report.blue[j]}",
           "-",
-          "${con[x]}"
+          "${con[x].toStringAsFixed(2)}"
         ]);
         j++;
       }
     }
-    // print(sample.length);
+    // print("row of std: ${std.length}");
+    // print("row of smp: ${smp.length}");
 
     List<List<String>> data = [
-          // ["No.", "Name", "Roll No."],
-          // ["1", "A", "100"],
-          // ["2", "B", "200"],
-          // ["3", "C", "300"]
           [
             "well_index",
             "STD/SMP",
@@ -438,12 +446,11 @@ class _ReportPageState extends State<ReportPage> {
             "saturation"
           ]
         ] +
-        sample.toList();
-    // print(data);
+        std.toList() +
+        smp.toList();
     String csvData = ListToCsvConverter().convert(data);
     final String directory = (await getExternalStorageDirectory())!.path;
-    final path = "$directory/m-css-${widget.report.name}.csv";
-    // print(directory);
+    final path = "$directory/m-css-${widget.report.name}-${DateTime.now()}.csv";
     final File file = File(path);
     await file.writeAsString(csvData);
     Navigator.of(context).push(
