@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
                     color: ColorCode.appBarColor,
                     child: Center(
                       child: Image.asset(
-                        'lib/assets/images/Modren-css-logo.png',
+                        'lib/assets/images/logo_app.jpg',
                         // fit: BoxFit.cover,
                       ),
                     ),
@@ -50,7 +50,7 @@ class MyApp extends StatelessWidget {
           }
           return MaterialApp(
             debugShowCheckedModeBanner: false,
-            title: "modern-css",
+            title: "modern-css by Kitiyaporn T.",
             builder: BotToastInit(),
             navigatorObservers: [BotToastNavigatorObserver()],
             home: MyHomePage(),

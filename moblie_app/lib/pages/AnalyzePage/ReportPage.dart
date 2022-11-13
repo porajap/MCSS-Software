@@ -11,8 +11,8 @@ import 'package:flutter/services.dart';
 import 'package:moblie_app/load_data_csv.dart';
 
 import 'package:moblie_app/models/ReportInfo.dart';
-import 'package:moblie_app/pages/AnalyzePage/cpmponents/Capturegenerator.dart';
-import 'package:moblie_app/pages/AnalyzePage/cpmponents/PDFprintgenerate.dart';
+import 'package:moblie_app/pages/AnalyzePage/components/Capturegenerator.dart';
+import 'package:moblie_app/pages/AnalyzePage/components/PDFprintgenerate.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
 
@@ -25,10 +25,10 @@ import '../../utils/ColorConfig.dart';
 import '../../utils/Constants.dart';
 import '../../utils/PlateConfig.dart';
 import '../../utils/TextConfig.dart';
-import 'cpmponents/Graphgenerator.dart';
-import 'cpmponents/RGBgenerator.dart';
+import 'components/Graphgenerator.dart';
+import 'components/RGBgenerator.dart';
 import '../../models/ReportInfo.dart';
-import 'cpmponents/reportHeader.dart';
+import 'components/reportHeader.dart';
 
 class ReportPage extends StatefulWidget {
   final File? imageFile;
@@ -391,7 +391,7 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   _showExportButton() {
-    return Row(
+    return waiting? SizedBox():Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Padding(

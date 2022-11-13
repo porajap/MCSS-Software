@@ -14,10 +14,10 @@ import '../../myApp.dart';
 import '../../utils/ColorConfig.dart';
 import '../../utils/Constants.dart';
 import 'ReportPage.dart';
-import 'cpmponents/Graphgenerator.dart';
-import 'cpmponents/PDFprintgenerate.dart';
-import 'cpmponents/RGBgenerator.dart';
-import 'cpmponents/reportHeader.dart';
+import 'components/Graphgenerator.dart';
+import 'components/PDFprintgenerate.dart';
+import 'components/RGBgenerator.dart';
+import 'components/reportHeader.dart';
 
 class SummaryPage extends StatefulWidget {
   final File? imageFile;
