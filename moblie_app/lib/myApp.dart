@@ -37,12 +37,12 @@ class MyApp extends StatelessWidget {
                 child: Scaffold(
                   body: Container(
                     color: ColorCode.appBarColor,
-                    child: Center(
-                      child: Image.asset(
-                        'lib/assets/images/logo_app.jpg',
-                        // fit: BoxFit.cover,
-                      ),
-                    ),
+                    // child: Center(
+                    //   child: Image.asset(
+                    //     'lib/assets/images/logo_app.jpg',
+                    //     // fit: BoxFit.cover,
+                    //   ),
+                    // ),
                   ),
                 ),
               ),
