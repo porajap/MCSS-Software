@@ -31,10 +31,16 @@ class MyApp extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return MaterialApp(
-              home: SafeArea(
-                child: Scaffold(
-                  body: Container(
-                    color: ColorCode.appBarColor,
+              home: Scaffold(
+                backgroundColor: ColorCode.appBarColor,
+                body: Center(
+                  child: ClipOval(
+                    child: Image.asset(
+                      'lib/assets/images/logo_splash_circle.png',
+                      width: 200,
+                      height: 200,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),
@@ -42,11 +48,40 @@ class MyApp extends StatelessWidget {
           }
           return MaterialApp(
             debugShowCheckedModeBanner: false,
-            title: "modern-css by Kitiyaporn T.",
+            title: "Modern-css by Kitiyaporn T.",
             builder: BotToastInit(),
             navigatorObservers: [BotToastNavigatorObserver()],
             home: const MyHomePage(),
-            theme: ThemeData(primarySwatch: ColorCode.appBarColor, textTheme: GoogleFonts.sarabunTextTheme()),
+            theme: ThemeData(
+              useMaterial3: false,
+              primarySwatch: ColorCode.appBarColor,
+              scaffoldBackgroundColor: Colors.white,
+              textTheme: GoogleFonts.sarabunTextTheme(),
+              appBarTheme: AppBarTheme(
+                backgroundColor: ColorCode.appBarColor,
+                elevation: 0,
+                centerTitle: false,
+                iconTheme: const IconThemeData(color: Colors.white),
+                titleTextStyle: GoogleFonts.sarabun(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 18,
+                ),
+              ),
+              elevatedButtonTheme: ElevatedButtonThemeData(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: ColorCode.appBarColor,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+              ),
+              dividerColor: ColorCode.divider,
+            ),
           );
         });
   }
@@ -58,6 +93,6 @@ class Init {
   static final instance = Init._();
 
   Future initialize() async {
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 1));
   }
 }

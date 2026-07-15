@@ -44,7 +44,15 @@ flutter_icons:
 
 flutter_native_splash:
   color: "795548"
-  fill: true
+  # Circular-masked logo (brown outside circle blends into splash).
+  image: lib/assets/images/logo_splash_circle.png
+  android_12:
+    color: "795548"
+    icon_background_color: "795548"
+    image: lib/assets/images/logo_splash_circle.png
+  ios: true
+  android: true
+  web: false
 
 dev_dependencies:
   flutter_test:

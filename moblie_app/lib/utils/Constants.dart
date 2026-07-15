@@ -4,17 +4,19 @@ class GridConfig {
 }
 
 class PreferenceKey {
-  static const List<String> evaluate = [
-    'select evaluate',
-    'Phosphate',
-    'Nitrate',
-    'Potassium',
-  ];
   static const String standard = 'Standard';
   static const String sample = 'Sample';
   static const String phosphate = 'Phosphate';
   static const String nitrate = 'Nitrate';
   static const String potassium = 'Potassium';
+  static const String inputForm = 'Select evaluate';
+
+  static const List<String> evaluate = [
+    inputForm,
+    phosphate,
+    nitrate,
+    potassium,
+  ];
 
   static const String hWellIndex = 'well_index';
   static const String hStdSmp = 'STD/SMP';
@@ -29,7 +31,6 @@ class PreferenceKey {
   static const String evaluateTitle = 'Soil Nutrient: ';
   static const String dateTitle = 'Analysis Date: ';
 
-  static const String inputForm = 'Select evaluate';
   static const String noti = 'Please fill in all information';
   static const String analyzeTap = 'Point Analysis';
   static const String analyzeAll = 'Area Analysis';

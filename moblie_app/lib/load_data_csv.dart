@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
+import 'package:moblie_app/utils/color_config.dart';
+import 'package:moblie_app/utils/text_config.dart';
 
 class LoadCsvDataScreen extends StatelessWidget {
   final String path;
@@ -14,58 +16,38 @@ class LoadCsvDataScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("$title .csv"),
+        title: Text('$title.csv', style: StyleText.appBar),
       ),
       body: FutureBuilder(
         future: loadingCsvData(path),
         builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
-          // print(snapshot.data.toString());
           return snapshot.hasData
-              ? Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: snapshot.data!
-                          .map(
-                            (data) => Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: <Widget>[
-                                  Text(
-                                    data[0].toString(),
-                                  ),
-                                  Text(
-                                    data[1].toString(),
-                                  ),
-                                  Text(
-                                    data[2].toString(),
-                                  ),
-                                  Text(
-                                    data[3].toString(),
-                                  ),
-                                  Text(
-                                    data[4].toString(),
-                                  ),
-                                  Text(
-                                    data[5].toString(),
-                                  ),
-                                  Text(
-                                    data[6].toString(),
-                                  ),
-                                ],
-                              ),
+              ? ListView.separated(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                  itemCount: snapshot.data!.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1, color: ColorCode.divider),
+                  itemBuilder: (context, index) {
+                    final data = snapshot.data![index];
+                    final isHeader = index == 0;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Row(
+                        children: List.generate(7, (i) {
+                          return Expanded(
+                            child: Text(
+                              data[i].toString(),
+                              textAlign: TextAlign.center,
+                              style: isHeader
+                                  ? StyleText.labelText
+                                  : StyleText.resultText,
                             ),
-                          )
-                          .toList(),
-                    ),
-                  ),
+                          );
+                        }),
+                      ),
+                    );
+                  },
                 )
-              : Center(
-                  child: CircularProgressIndicator(),
-                );
+              : const Center(child: CircularProgressIndicator());
         },
       ),
     );

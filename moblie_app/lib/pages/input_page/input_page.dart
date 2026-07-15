@@ -5,6 +5,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:moblie_app/models/report_info.dart';
 import 'package:moblie_app/my_app.dart';
 import 'package:moblie_app/pages/analyze_page/summary_page.dart';
+import 'package:moblie_app/utils/color_config.dart';
 import 'package:moblie_app/utils/text_config.dart';
 
 import '../../utils/constants.dart';
@@ -28,7 +29,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String dropdownValue = PreferenceKey.inputForm;
   File? imageFile;
   File? _image;
-  ReportInfo report = ReportInfo('', '', [], [], []);
+  ReportInfo report = ReportInfo('', PreferenceKey.inputForm, [], [], []);
 
   @override
   void initState() {
@@ -39,103 +40,89 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _showImageDialog() {
     showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text(
-              "Please choose an option",
-              style: StyleText.headerText,
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                InkWell(
-                  onTap: () {
-                    _getFromCamera();
-                  },
-                  child: const Row(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.all(4.0),
-                        child: Icon(
-                          Icons.camera_alt,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      Text(
-                        "Camera",
-                        style: TextStyle(color: Colors.grey),
-                      )
-                    ],
-                  ),
-                ),
-                InkWell(
-                  onTap: () {
-                    _getFromGallery();
-                  },
-                  child: const Row(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.all(4.0),
-                        child: Icon(
-                          Icons.image,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      Text(
-                        "Gallery",
-                        style: TextStyle(color: Colors.grey),
-                      )
-                    ],
-                  ),
-                )
-              ],
-            ),
-          );
-        });
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          title: Text('Please choose an option', style: StyleText.titleText),
+          contentPadding: const EdgeInsets.fromLTRB(8, 12, 8, 16),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.photo_camera_outlined, color: ColorCode.appBarColor),
+                title: Text('Camera', style: StyleText.normalText),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                onTap: _getFromCamera,
+              ),
+              ListTile(
+                leading: Icon(Icons.image_outlined, color: ColorCode.appBarColor),
+                title: Text('Gallery', style: StyleText.normalText),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                onTap: _getFromGallery,
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _getFromGallery() async {
     XFile? pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery, maxHeight: 1080, maxWidth: 1080);
-    if (pickedFile == null) return;
-    _cropImage(pickedFile.path);
     if (!mounted) return;
     Navigator.pop(context);
+    if (pickedFile == null) return;
+    await _cropImage(pickedFile.path);
   }
 
   void _getFromCamera() async {
     XFile? pickedFile = await ImagePicker().pickImage(source: ImageSource.camera, maxHeight: 1080, maxWidth: 1080);
-    if (pickedFile == null) return;
-    _cropImage(pickedFile.path);
     if (!mounted) return;
     Navigator.pop(context);
+    if (pickedFile == null) return;
+    await _cropImage(pickedFile.path);
   }
 
-  void _cropImage(filePath) async {
-    CroppedFile? croppedFile = await ImageCropper().cropImage(
+  Future<void> _cropImage(String filePath) async {
+    final CroppedFile? croppedFile = await ImageCropper().cropImage(
       sourcePath: filePath,
       maxHeight: 1080,
       maxWidth: 1080,
       uiSettings: [
         AndroidUiSettings(
+          toolbarTitle: 'Crop image',
+          toolbarColor: ColorCode.appBarColor,
+          toolbarWidgetColor: Colors.white,
+          statusBarLight: false,
+          activeControlsWidgetColor: ColorCode.appBarColor,
+          initAspectRatio: CropAspectRatioPreset.original,
+          lockAspectRatio: false,
+          hideBottomControls: false,
           cropGridRowCount: 7,
           cropGridColumnCount: 11,
+        ),
+        IOSUiSettings(
+          title: 'Crop image',
+          doneButtonTitle: 'Done',
+          cancelButtonTitle: 'Cancel',
         ),
       ],
     );
 
-    if (croppedFile != null) {
-      _saveImage();
-      setState(() {
-        imageFile = File(croppedFile.path);
-      });
-    }
+    if (croppedFile == null || !mounted) return;
+
+    final File cropped = File(croppedFile.path);
+    setState(() {
+      imageFile = cropped;
+    });
+    await _saveImage(cropped);
   }
 
-  Future _saveImage() async {
-    Directory imagePath = await getApplicationDocumentsDirectory();
-    String path = imagePath.path;
-    File newImage = await imageFile!.copy('$path/image1.png');
+  Future<void> _saveImage(File source) async {
+    final Directory imagePath = await getApplicationDocumentsDirectory();
+    final File newImage = await source.copy('${imagePath.path}/image1.png');
+    if (!mounted) return;
     setState(() {
       _image = newImage;
     });
@@ -147,13 +134,15 @@ class _MyHomePageState extends State<MyHomePage> {
     if (evaluate == 'Phosphate' || evaluate == 'Nitrate' || evaluate == 'Potassium') {
       if (Plate.pnpStandard.contains(index)) {
         isIcon = const Icon(
-          Icons.check_circle_outline_outlined,
+          Icons.circle,
+          size: 10,
           color: Colors.green,
         );
       }
       if (Plate.pnpSample!.contains(index)) {
         isIcon = const Icon(
-          Icons.check_circle_outline_outlined,
+          Icons.circle,
+          size: 10,
           color: Colors.red,
         );
       }
@@ -161,53 +150,62 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
+        border: Border.all(color: ColorCode.borderSubtle.withValues(alpha: 0.7), width: 0.5),
       ),
+      alignment: Alignment.center,
       child: isIcon,
     );
   }
 
   Widget _analyzeTap() {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        textStyle: StyleText.normalText,
-        minimumSize: const Size.fromHeight(50),
+    return SizedBox(
+      width: double.infinity,
+      height: 48,
+      child: ElevatedButton(
+        onPressed: () {
+          imageFile == null || report.evaluate == PreferenceKey.inputForm
+              ? BotToast.showText(text: PreferenceKey.noti)
+              : Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) => SummaryPage(
+                            imageFile: _image,
+                            report: report,
+                          )));
+        },
+        child: Text(PreferenceKey.analyzeTap, style: StyleText.buttonText),
       ),
-      onPressed: () {
-        imageFile == null || report.evaluate == PreferenceKey.inputForm
-            ? BotToast.showText(text: PreferenceKey.noti)
-            : Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (BuildContext context) => SummaryPage(
-                          imageFile: _image,
-                          report: report,
-                        )));
-      },
-      child: Text(PreferenceKey.analyzeTap, style: StyleText.buttonText),
     );
   }
 
   Widget _analyzeAll() {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        textStyle: StyleText.normalText,
-        minimumSize: const Size.fromHeight(50),
-      ),
-      onPressed: () {
-        imageFile == null || report.evaluate == PreferenceKey.inputForm
-            ? BotToast.showText(text: PreferenceKey.noti)
-            : Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (BuildContext context) => ReportPage(
-                    imageFile: _image,
-                    report: report,
+    return SizedBox(
+      width: double.infinity,
+      height: 48,
+      child: OutlinedButton(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: ColorCode.appBarColor,
+          side: BorderSide(color: ColorCode.appBarColor.withValues(alpha: 0.7)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        onPressed: () {
+          imageFile == null || report.evaluate == PreferenceKey.inputForm
+              ? BotToast.showText(text: PreferenceKey.noti)
+              : Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) => ReportPage(
+                      imageFile: _image,
+                      report: report,
+                    ),
                   ),
-                ),
-              );
-      },
-      child: Text(PreferenceKey.analyzeAll, style: StyleText.buttonText),
+                );
+        },
+        child: Text(
+          PreferenceKey.analyzeAll,
+          style: StyleText.buttonText.copyWith(color: ColorCode.appBarColor),
+        ),
+      ),
     );
   }
 
@@ -215,10 +213,8 @@ class _MyHomePageState extends State<MyHomePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(PreferenceKey.nameTitle, style: StyleText.headerText),
-        const SizedBox(
-          height: 5,
-        ),
+        Text(PreferenceKey.nameTitle, style: StyleText.labelText),
+        const SizedBox(height: 8),
         TextFormField(
           controller: reportName,
           onChanged: (context) => setState(() {
@@ -227,22 +223,20 @@ class _MyHomePageState extends State<MyHomePage> {
           decoration: InputDecorations.inputDec(hintText: 'example'),
           style: StyleText.normalText,
         ),
-        const SizedBox(
-          height: 10,
-        ),
-        Text(PreferenceKey.evaluateTitle, style: StyleText.headerText),
-        const SizedBox(
-          height: 5,
-        ),
+        const SizedBox(height: 20),
+        Text(PreferenceKey.evaluateTitle, style: StyleText.labelText),
+        const SizedBox(height: 8),
         InputDecorator(
           decoration: InputDecorations.inputDec(hintText: ''),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
-              borderRadius: const BorderRadius.all(Radius.circular(10)),
-              hint: const Text('เลือกธาตุอาหาร'),
+              borderRadius: const BorderRadius.all(Radius.circular(8)),
+              isExpanded: true,
+              isDense: true,
+              hint: Text('Select nutrient', style: StyleText.normalText.copyWith(color: ColorCode.textMuted)),
               value: dropdownValue,
-              icon: const Icon(Icons.arrow_drop_down),
-              elevation: 4,
+              icon: Icon(Icons.keyboard_arrow_down_rounded, color: ColorCode.appBarColor),
+              elevation: 2,
               style: StyleText.normalText,
               onChanged: (String? newValue) {
                 setState(() {
@@ -264,90 +258,97 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  Widget _imageSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(PreferenceKey.imageTitle, style: StyleText.labelText),
+            ),
+            TextButton(
+              onPressed: _showImageDialog,
+              style: TextButton.styleFrom(
+                foregroundColor: ColorCode.appBarColor,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(color: ColorCode.appBarColor.withValues(alpha: 0.35)),
+                ),
+              ),
+              child: Text(
+                imageFile == null ? 'Upload image' : 'Change image',
+                style: StyleText.normalText.copyWith(
+                  color: ColorCode.appBarColor,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Container(
+          height: 252,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: ColorCode.surfaceMuted,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: ColorCode.divider),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              imageFile != null
+                  ? Image.file(
+                      imageFile!,
+                      semanticLabel: '96-well plates',
+                      fit: BoxFit.fill,
+                    )
+                  : Center(
+                      child: Text(
+                        'No image selected',
+                        style: StyleText.normalText.copyWith(color: ColorCode.textMuted),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+              GridView.count(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                crossAxisCount: 12,
+                children: List.generate(96, (index) => _checkBox(dropdownValue, index + 1)),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("M-CSS v.1.1", style: StyleText.appBar),
+        title: Text('M-CSS Soil Nutrient Analyzer', style: StyleText.appBar),
       ),
       body: GestureDetector(
-        onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
+        onTap: () => FocusScope.of(context).unfocus(),
         child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Center(
-                  child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    _inputReportName(),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            PreferenceKey.imageTitle,
-                            style: StyleText.headerText,
-                          ),
-                          const Spacer(),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              textStyle: StyleText.normalText,
-                            ),
-                            onPressed: _showImageDialog,
-                            child: Text(
-                              imageFile == null ? "Upload image" : "Change image",
-                              style: StyleText.buttonText,
-                            ),
-                          )
-                        ],
-                      ),
-                      Container(
-                        constraints: BoxConstraints(
-                          maxWidth: MediaQuery.of(context).size.width,
-                          maxHeight: 252,
-                        ),
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.rectangle,
-                        ),
-                        child: Stack(
-                          children: [
-                            imageFile != null
-                                ? Image.file(imageFile!, width: double.infinity, height: double.infinity, semanticLabel: "96-well plates", fit: BoxFit.fill)
-                                : Center(
-                                    widthFactor: double.infinity,
-                                    heightFactor: double.infinity,
-                                    child: Text(
-                                      "No image selected",
-                                      style: StyleText.normalText,
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                            GridView.count(
-                              shrinkWrap: true,
-                              crossAxisCount: 12,
-                              children: List.generate(96, (index) => _checkBox(dropdownValue, index + 1)),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ]),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    _analyzeTap(),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    _analyzeAll()
-                  ]),
-                ),
-              ),
+              _inputReportName(),
+              const SizedBox(height: 24),
+              const Divider(height: 1, color: ColorCode.divider),
+              const SizedBox(height: 20),
+              _imageSection(),
+              const SizedBox(height: 28),
+              _analyzeTap(),
+              const SizedBox(height: 10),
+              _analyzeAll(),
             ],
           ),
         ),

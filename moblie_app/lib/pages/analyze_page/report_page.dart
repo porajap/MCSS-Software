@@ -146,27 +146,77 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   Widget _showChart() {
-    return Center(
-      child: waiting
-          ? const CircularProgressIndicator()
-          : SizedBox(
-              height: 400,
-              child: SfCartesianChart(
-                tooltipBehavior: TooltipBehavior(enable: true, tooltipPosition: TooltipPosition.pointer, borderColor: Colors.red, borderWidth: 5, color: Colors.lightBlue),
-                title: ChartTitle(
-                  text: 'Standard Linear Regression',
-                  textStyle: const TextStyle(fontSize: 12),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+      child: Center(
+        child: waiting
+            ? const Padding(
+                padding: EdgeInsets.symmetric(vertical: 48),
+                child: CircularProgressIndicator(),
+              )
+            : SizedBox(
+                height: 380,
+                child: SfCartesianChart(
+                  plotAreaBorderWidth: 0,
+                  tooltipBehavior: TooltipBehavior(
+                    enable: true,
+                    tooltipPosition: TooltipPosition.pointer,
+                    borderColor: ColorCode.appBarColor,
+                    borderWidth: 1,
+                    color: ColorCode.appBarColor,
+                  ),
+                  title: ChartTitle(
+                    text: 'Standard Linear Regression',
+                    textStyle: StyleText.labelText,
+                  ),
+                  primaryXAxis: widget.report.evaluate == PreferenceKey.potassium
+                      ? NumericAxis(minimum: 0, interval: 10, maximum: 30, majorGridLines: const MajorGridLines(width: 0.4))
+                      : NumericAxis(minimum: 0, interval: 0.5, maximum: 5, majorGridLines: const MajorGridLines(width: 0.4)),
+                  legend: Legend(
+                    isVisible: true,
+                    position: LegendPosition.bottom,
+                    overflowMode: LegendItemOverflowMode.wrap,
+                    textStyle: StyleText.resultText,
+                  ),
+                  primaryYAxis: NumericAxis(
+                    minimum: minimum,
+                    maximum: maximum,
+                    interval: 5,
+                    majorGridLines: const MajorGridLines(width: 0.4),
+                  ),
+                  series: <CartesianSeries>[
+                    ScatterSeries<ChartData, double>(
+                      legendItemText: PreferenceKey.standard,
+                      enableTooltip: true,
+                      color: Colors.green,
+                      markerSettings: const MarkerSettings(isVisible: true, height: 7, width: 7),
+                      dataSource: calScatter(PreferenceKey.standard),
+                      xValueMapper: (ChartData data, _) => data.x,
+                      yValueMapper: (ChartData data, _) => data.y,
+                    ),
+                    LineSeries<ChartData, double>(
+                      legendItemText:
+                          'y = ${equation.coefficient(1).toStringAsFixed(3)}x+${equation.coefficient(0).toStringAsFixed(3)} (R^2 =${equation.R2().toStringAsFixed(3)})',
+                      enableTooltip: true,
+                      color: ColorCode.appBarColor,
+                      width: 1.5,
+                      dataSource: calLine(),
+                      xValueMapper: (ChartData data, _) => data.x,
+                      yValueMapper: (ChartData data, _) => data.y,
+                    ),
+                    ScatterSeries<ChartData, double>(
+                      legendItemText: PreferenceKey.sample,
+                      enableTooltip: true,
+                      color: Colors.red,
+                      markerSettings: const MarkerSettings(isVisible: true, height: 7, width: 7),
+                      dataSource: calScatter(PreferenceKey.sample),
+                      xValueMapper: (ChartData data, _) => data.x,
+                      yValueMapper: (ChartData data, _) => data.y,
+                    ),
+                  ],
                 ),
-                primaryXAxis: widget.report.evaluate == PreferenceKey.potassium ? NumericAxis(minimum: 0, interval: 10, maximum: 30) : NumericAxis(minimum: 0, interval: 0.5, maximum: 5),
-                legend: Legend(isVisible: true, position: LegendPosition.bottom, overflowMode: LegendItemOverflowMode.wrap),
-                primaryYAxis: NumericAxis(minimum: minimum, maximum: maximum, interval: 5),
-                series: <CartesianSeries>[
-                  ScatterSeries<ChartData, double>(legendItemText: PreferenceKey.standard, enableTooltip: true, dataSource: calScatter(PreferenceKey.standard), xValueMapper: (ChartData data, _) => data.x, yValueMapper: (ChartData data, _) => data.y),
-                  LineSeries<ChartData, double>(legendItemText: 'y = ${equation.coefficient(1).toStringAsFixed(3)}x+${equation.coefficient(0).toStringAsFixed(3)} (R^2 =${equation.R2().toStringAsFixed(3)})', enableTooltip: true, dataSource: calLine(), xValueMapper: (ChartData data, _) => data.x, yValueMapper: (ChartData data, _) => data.y),
-                  ScatterSeries<ChartData, double>(legendItemText: PreferenceKey.sample, enableTooltip: true, dataSource: calScatter(PreferenceKey.sample), xValueMapper: (ChartData data, _) => data.x, yValueMapper: (ChartData data, _) => data.y),
-                ],
               ),
-            ),
+      ),
     );
   }
 
@@ -259,76 +309,92 @@ class _ReportPageState extends State<ReportPage> {
     int n = -1;
 
     return croppedFiles.isEmpty
-        ? const SizedBox(
-            height: 10,
-          )
-        : GridView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 5,
-            ),
-            itemCount: croppedFiles.length,
-            itemBuilder: (BuildContext ctx, index) {
-              String title;
-              String concentrate;
-              String rgbCode;
+        ? const SizedBox(height: 10)
+        : Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
+            child: GridView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 5,
+                mainAxisSpacing: 8,
+                crossAxisSpacing: 6,
+                childAspectRatio: 0.78,
+              ),
+              itemCount: croppedFiles.length,
+              itemBuilder: (BuildContext ctx, index) {
+                String title;
+                String concentrate;
+                String rgbCode;
 
-              if (index < Plate.pnpStandard.length) {
-                title = 'Std';
-                concentrate = con[i].toStringAsFixed(2);
-                rgbCode = widget.report.standard[i * 5].toStringAsFixed(0);
-                i++;
-              } else {
-                var number = index % 10;
-                if (number == 0) n++;
-                title = plate.label[n] + plate.no[number].toString();
-                concentrate = (result[j] * 2).toStringAsFixed(2);
-                rgbCode = widget.report.sample[j].toStringAsFixed(0);
-                smp.add([title, "SMP", "${widget.report.red[50 + j]}", "${widget.report.green[50 + j]}", "${widget.report.blue[50 + j]}", "-", concentrate]);
-                j++;
-              }
-              return Column(
-                children: [
-                  Text('$title=$concentrate', style: StyleText.resultText),
-                  Image.file(
-                    croppedFiles[index],
-                    fit: BoxFit.contain,
-                    height: 40,
-                    width: 50,
+                if (index < Plate.pnpStandard.length) {
+                  title = 'Std';
+                  concentrate = con[i].toStringAsFixed(2);
+                  rgbCode = widget.report.standard[i * 5].toStringAsFixed(0);
+                  i++;
+                } else {
+                  var number = index % 10;
+                  if (number == 0) n++;
+                  title = plate.label[n] + plate.no[number].toString();
+                  concentrate = (result[j] * 2).toStringAsFixed(2);
+                  rgbCode = widget.report.sample[j].toStringAsFixed(0);
+                  smp.add([title, "SMP", "${widget.report.red[50 + j]}", "${widget.report.green[50 + j]}", "${widget.report.blue[50 + j]}", "-", concentrate]);
+                  j++;
+                }
+                return Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: ColorCode.surfaceMuted,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: ColorCode.divider),
                   ),
-                  Text(
-                    rgbCode,
-                    style: StyleText.resultText,
-                  )
-                ],
-              );
-            },
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('$title=$concentrate', style: StyleText.resultText, textAlign: TextAlign.center),
+                      const SizedBox(height: 4),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: Image.file(
+                          croppedFiles[index],
+                          fit: BoxFit.contain,
+                          height: 36,
+                          width: 44,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(rgbCode, style: StyleText.resultText.copyWith(color: ColorCode.textMuted)),
+                    ],
+                  ),
+                );
+              },
+            ),
           );
   }
 
   Widget _showExportButton() {
     return waiting
         ? const SizedBox()
-        : Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      textStyle: StyleText.normalText,
-                      backgroundColor: Colors.green,
+        : Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton.icon(
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.green,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: const BorderSide(color: Colors.green),
                     ),
-                    onPressed: () {
-                      generateCsv();
-                    },
-                    icon: const Icon(
-                      Icons.file_upload,
-                    ),
-                    label: const Text('CSV')),
-              ),
-            ],
+                  ),
+                  onPressed: generateCsv,
+                  icon: const Icon(Icons.upload_file_outlined, size: 18),
+                  label: Text('CSV', style: StyleText.normalText.copyWith(color: Colors.green, fontWeight: FontWeight.w600)),
+                ),
+              ],
+            ),
           );
   }
 

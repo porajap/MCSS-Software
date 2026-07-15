@@ -16,4 +16,13 @@ Map<int, Color> primarySwatchShades = {
 class ColorCode {
   static MaterialColor appBarColor = MaterialColor(0xFF795548, primarySwatchShades);
   static Color iconsAppBar = Colors.white;
+
+  /// Existing purple used by input borders.
+  static const Color accentPurple = Color.fromARGB(255, 159, 49, 178);
+
+  /// Soft neutrals for minimal layout (not brand accents).
+  static const Color divider = Color(0xFFE8E4E1);
+  static const Color surfaceMuted = Color(0xFFF7F5F4);
+  static const Color textMuted = Color(0xFF6B6560);
+  static const Color borderSubtle = Color(0xFFD6D0CC);
 }

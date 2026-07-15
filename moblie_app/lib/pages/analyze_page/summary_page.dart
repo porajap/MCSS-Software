@@ -192,34 +192,50 @@ class _SummaryPageState extends State<SummaryPage> {
                           )))),
               Expanded(
                 flex: 2,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text("Colors: ", style: StyleText.normalText),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Container(width: 100, height: 55, color: color),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Container(
-                      padding: const EdgeInsets.only(left: 8.0),
-                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text("Coordinate (x,y) : (${localPosition.dx.toStringAsFixed(2)},${localPosition.dy.toStringAsFixed(2)})", style: StyleText.normalText),
-                        Text("R: ${colorChannel8(color, 'red')}", style: StyleText.normalText),
-                        Text("G: ${colorChannel8(color, 'green')}", style: StyleText.normalText),
-                        Text("B: ${colorChannel8(color, 'blue')}", style: StyleText.normalText),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Text("Concentration of nutrient in Samples: ${(result * 2).toStringAsFixed(2)} mg/kg", style: StyleText.headerText)
-                      ]),
-                    )
-                  ],
+                child: Container(
+                  width: double.infinity,
+                  color: ColorCode.surfaceMuted,
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text('Color', style: StyleText.labelText),
+                          const SizedBox(width: 12),
+                          Container(
+                            width: 72,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: color,
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: ColorCode.borderSubtle),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                      Text(
+                        'Coordinate  (${localPosition.dx.toStringAsFixed(2)}, ${localPosition.dy.toStringAsFixed(2)})',
+                        style: StyleText.normalText,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'R ${colorChannel8(color, 'red')}   G ${colorChannel8(color, 'green')}   B ${colorChannel8(color, 'blue')}',
+                        style: StyleText.normalText.copyWith(color: ColorCode.textMuted),
+                      ),
+                      const Spacer(),
+                      Text(
+                        'Concentration of nutrient in Samples',
+                        style: StyleText.labelText,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${(result * 2).toStringAsFixed(2)} mg/kg',
+                        style: StyleText.titleText.copyWith(color: ColorCode.appBarColor),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],

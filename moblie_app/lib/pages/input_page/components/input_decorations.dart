@@ -1,16 +1,27 @@
 import 'package:flutter/material.dart';
 
+import '../../../utils/color_config.dart';
+
 class InputDecorations {
-  static InputDecoration inputDec({required String hintText}) =>
-      InputDecoration(
-        fillColor: Color.fromARGB(255, 159, 49, 178),
+  static InputDecoration inputDec({required String hintText}) => InputDecoration(
+        filled: true,
+        fillColor: Colors.white,
         hintText: hintText,
-        // focusColor: Colors.purple,
+        hintStyle: TextStyle(color: ColorCode.textMuted.withValues(alpha: 0.7), fontSize: 14),
         alignLabelWithHint: true,
-        border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-          borderSide: BorderSide(color: Colors.purple, width: 1),
+        isDense: true,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: const BorderRadius.all(Radius.circular(8)),
+          borderSide: BorderSide(color: ColorCode.accentPurple.withValues(alpha: 0.45), width: 1),
         ),
-        contentPadding: const EdgeInsets.all(8),
+        focusedBorder: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(8)),
+          borderSide: BorderSide(color: ColorCode.accentPurple, width: 1.5),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: const BorderRadius.all(Radius.circular(8)),
+          borderSide: BorderSide(color: ColorCode.accentPurple.withValues(alpha: 0.45), width: 1),
+        ),
       );
 }
