@@ -24,21 +24,29 @@ class ReportInfo {
 
   Plate plate = Plate();
 
+  /// Intensity channel used as Y for regression / chart.
+  /// Phosphate → red, Nitrate → green, Potassium → gray (R+G+B)/3.
+  double intensityAt(int index) {
+    final r = red[index].toDouble();
+    final g = green[index].toDouble();
+    final b = blue[index].toDouble();
+    if (evaluate == PreferenceKey.phosphate) {
+      return r;
+    }
+    if (evaluate == PreferenceKey.nitrate) {
+      return g;
+    }
+    if (evaluate == PreferenceKey.potassium) {
+      return (r + g + b) / 3.0;
+    }
+    return 0;
+  }
+
   List<double> calStandard() {
     standard = [];
     try {
-      if (evaluate == PreferenceKey.phosphate) {
-        for (int i = 1; i < 51; i++) {
-          standard.add(red[i - 1].toDouble());
-        }
-      } else if (evaluate == PreferenceKey.nitrate) {
-        for (int i = 1; i < 51; i++) {
-          standard.add(green[i - 1].toDouble());
-        }
-      } else if (evaluate == PreferenceKey.potassium) {
-        for (int i = 1; i < 51; i++) {
-          standard.add(blue[i - 1].toDouble());
-        }
+      for (int i = 0; i < 50; i++) {
+        standard.add(intensityAt(i));
       }
     } catch (e) {
       logger.e('Fail: calculate standard value');
@@ -49,18 +57,8 @@ class ReportInfo {
   List<double> calSample() {
     sample = [];
     try {
-      if (evaluate == PreferenceKey.phosphate) {
-        for (int i = 51; i < red.length + 1; i++) {
-          sample.add(red[i - 1].toDouble());
-        }
-      } else if (evaluate == PreferenceKey.nitrate) {
-        for (int i = 51; i < green.length + 1; i++) {
-          sample.add(green[i - 1].toDouble());
-        }
-      } else if (evaluate == PreferenceKey.potassium) {
-        for (int i = 51; i < blue.length + 1; i++) {
-          sample.add(blue[i - 1].toDouble());
-        }
+      for (int i = 50; i < red.length; i++) {
+        sample.add(intensityAt(i));
       }
     } catch (e) {
       logger.e('Fail: calculate sample value');

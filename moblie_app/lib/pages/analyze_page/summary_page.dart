@@ -106,14 +106,17 @@ class _SummaryPageState extends State<SummaryPage> {
   double calConcentrate(PolyFit equation, Color colorCode) {
     double sample = 0;
     try {
+      final r = colorChannel8(colorCode, 'red').toDouble();
+      final g = colorChannel8(colorCode, 'green').toDouble();
+      final b = colorChannel8(colorCode, 'blue').toDouble();
       if (widget.report.evaluate == PreferenceKey.phosphate) {
-        sample = colorChannel8(colorCode, 'red').toDouble();
+        sample = r;
       }
       if (widget.report.evaluate == PreferenceKey.nitrate) {
-        sample = colorChannel8(colorCode, 'green').toDouble();
+        sample = g;
       }
       if (widget.report.evaluate == PreferenceKey.potassium) {
-        sample = colorChannel8(colorCode, 'blue').toDouble();
+        sample = (r + g + b) / 3.0;
       }
       result = equation.predict(sample);
     } catch (e) {
