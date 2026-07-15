@@ -60,12 +60,13 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   delay() async {
-    await Future.delayed(const Duration(seconds: 10));
+    // Run analysis immediately — no artificial wait.
     await extractColors();
     await conStandard();
     await cropImage();
     minimum = widget.report.calSample().reduce(min);
     maximum = widget.report.calSample().reduce(max);
+    if (!mounted) return;
     waiting = false;
     setState(() {});
   }

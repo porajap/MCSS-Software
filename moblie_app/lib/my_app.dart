@@ -34,13 +34,11 @@ class MyApp extends StatelessWidget {
               home: Scaffold(
                 backgroundColor: ColorCode.appBarColor,
                 body: Center(
-                  child: ClipOval(
-                    child: Image.asset(
-                      'lib/assets/images/logo_splash_circle.png',
-                      width: 200,
-                      height: 200,
-                      fit: BoxFit.cover,
-                    ),
+                  child: Image.asset(
+                    'lib/assets/images/logo_splash_circle.png',
+                    width: 220,
+                    height: 220,
+                    fit: BoxFit.contain,
                   ),
                 ),
               ),

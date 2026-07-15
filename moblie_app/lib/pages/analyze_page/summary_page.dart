@@ -1,8 +1,8 @@
 ﻿import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:image_pixels/image_pixels.dart';
 import 'package:moblie_app/utils/text_config.dart';
@@ -50,41 +50,42 @@ class _SummaryPageState extends State<SummaryPage> {
     super.initState();
   }
 
-  delay() async {
-    await Future.delayed(const Duration(seconds: 10));
+  Future<void> delay() async {
+    // Run analysis immediately — no artificial wait.
     await extractColors();
     await conStandard();
     fileImage = FileImage(widget.imageFile!);
-    waiting = false;
-    setState(() {});
+    if (!mounted) return;
+    setState(() {
+      waiting = false;
+    });
   }
 
   Future<void> extractColors() async {
     imageBytes = await _readFileByte(widget.imageFile);
     colors = await compute(extractPixelsColors, imageBytes);
-    colors!.forEach((key, value) {
+    for (final key in colors!.keys) {
       red.addAll(getColorValue(colors![key]!, 'red'));
       green.addAll(getColorValue(colors![key]!, 'green'));
       blue.addAll(getColorValue(colors![key]!, 'blue'));
-    });
+    }
     widget.report.red = red;
     widget.report.green = green;
     widget.report.blue = blue;
   }
 
   Future<Uint8List> _readFileByte(File? filePath) async {
-    File audioFile = filePath!;
-    Uint8List bytes = (await rootBundle.load('lib/assets/images/water.jpg')).buffer.asUint8List();
-    await audioFile.readAsBytes().then((value) {
-      bytes = Uint8List.fromList(value);
+    try {
+      final bytes = await filePath!.readAsBytes();
       logger.d('reading of bytes is completed');
-    }).catchError((onError) {
-      logger.e('Exception Error while reading audio from path: $onError');
-    });
-    return bytes;
+      return bytes;
+    } catch (onError) {
+      logger.e('Exception Error while reading image from path: $onError');
+      rethrow;
+    }
   }
 
-  calCon() {
+  List<double> calCon() {
     List<double> con = [];
     for (double i in widget.report.con[widget.report.evaluate]!) {
       for (int j = 0; j < 5; j++) {
@@ -94,7 +95,7 @@ class _SummaryPageState extends State<SummaryPage> {
     return con = con + con.toList();
   }
 
-  conStandard() async {
+  Future<void> conStandard() async {
     con = widget.report.con[widget.report.evaluate]!;
 
     List<double> standard = widget.report.calStandard();
@@ -122,10 +123,132 @@ class _SummaryPageState extends State<SummaryPage> {
     return result;
   }
 
+  void _onImageTap(Offset local, ImgDetails img, double scale) {
+    final w = img.width ?? 1;
+    final h = img.height ?? 1;
+    final x = (local.dx / scale).floor().clamp(0, w - 1);
+    final y = (local.dy / scale).floor().clamp(0, h - 1);
+    final sampled = img.pixelColorAt!(x, y);
+
+    setState(() {
+      localPosition = local;
+      color = sampled;
+      calConcentrate(equation, sampled);
+    });
+    logger.d('position: $localPosition pixel: ($x, $y)');
+  }
+
+  Widget _buildImageArea() {
+    if (waiting) {
+      return const Center(
+        child: CircularProgressIndicator(semanticsLabel: 'Loading...'),
+      );
+    }
+
+    return ColoredBox(
+      color: ColorCode.surfaceMuted,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return ImagePixels(
+            imageProvider: fileImage,
+            builder: (BuildContext context, ImgDetails img) {
+              final imgW = (img.width ?? 500).toDouble();
+              final imgH = (img.height ?? 500).toDouble();
+              final scale = math.min(
+                constraints.maxWidth / imgW,
+                constraints.maxHeight / imgH,
+              );
+              final displayW = imgW * scale;
+              final displayH = imgH * scale;
+
+              return Center(
+                child: Listener(
+                  onPointerDown: (PointerDownEvent details) {
+                    _onImageTap(details.localPosition, img, scale);
+                  },
+                  child: SizedBox(
+                    width: displayW,
+                    height: displayH,
+                    child: Image.file(
+                      fileImage.file,
+                      fit: BoxFit.fill,
+                      filterQuality: FilterQuality.medium,
+                      gaplessPlayback: true,
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildResultPanel() {
+    return Material(
+      color: Colors.white,
+      elevation: 0,
+      child: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          color: ColorCode.surfaceMuted,
+          border: Border(top: BorderSide(color: ColorCode.divider)),
+        ),
+        padding: const EdgeInsets.fromLTRB(20, 14, 20, 8),
+        child: SafeArea(
+          top: false,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Text('Color', style: StyleText.labelText),
+                  const SizedBox(width: 12),
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: ColorCode.borderSubtle),
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    'R ${colorChannel8(color, 'red')}  G ${colorChannel8(color, 'green')}  B ${colorChannel8(color, 'blue')}',
+                    style: StyleText.normalText.copyWith(color: ColorCode.textMuted, fontSize: 13),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Coordinate  (${localPosition.dx.toStringAsFixed(2)}, ${localPosition.dy.toStringAsFixed(2)})',
+                style: StyleText.normalText,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Concentration of nutrient in Samples',
+                style: StyleText.labelText,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                '${(result * 2).toStringAsFixed(2)} mg/kg',
+                style: StyleText.titleText.copyWith(color: ColorCode.appBarColor),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    var report = widget.report;
+    final report = widget.report;
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         elevation: 0,
         actions: [
@@ -134,112 +257,19 @@ class _SummaryPageState extends State<SummaryPage> {
             onPressed: () {
               printScreen(_printKey);
             },
-            icon: const Icon(
-              Icons.print_rounded,
-            ),
+            icon: const Icon(Icons.print_rounded),
           )
         ],
         title: Text('Analysis Report', style: StyleText.appBar),
       ),
-      body: SizedBox.expand(
-        child: RepaintBoundary(
-          key: _printKey,
-          child: Column(
-            children: [
-              buildReportHeader(report.name, report.evaluate),
-              Expanded(
-                  flex: 4,
-                  child: waiting
-                      ? const Center(
-                          child: CircularProgressIndicator(
-                          semanticsLabel: "Loading...",
-                        ))
-                      : Padding(
-                          padding: const EdgeInsets.all(0),
-                          child: Center(
-                              child: Container(
-                            color: Colors.white,
-                            child: Listener(
-                              onPointerDown: (PointerDownEvent details) {
-                                setState(() {
-                                  localPosition = details.localPosition;
-                                  logger.d("position: $localPosition");
-                                });
-                              },
-                              child: ImagePixels(
-                                  imageProvider: fileImage,
-                                  builder: (BuildContext context, ImgDetails img) {
-                                    int w = img.width != null ? img.width! : 500;
-                                    int h = img.height != null ? img.height! : 500;
-                                    double scaleW = MediaQuery.of(context).size.width / w;
-
-                                    color = img.pixelColorAt!((localPosition.dx / scaleW).toInt(), (localPosition.dy).toInt());
-
-                                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                                      setState(() {});
-                                    });
-                                    calConcentrate(equation, color);
-                                    return SizedBox(
-                                      height: h.toDouble(),
-                                      width: MediaQuery.of(context).size.width,
-                                      child: Image.file(
-                                        fileImage.file,
-                                        fit: BoxFit.fill,
-                                      ),
-                                    );
-                                  }),
-                            ),
-                          )))),
-              Expanded(
-                flex: 2,
-                child: Container(
-                  width: double.infinity,
-                  color: ColorCode.surfaceMuted,
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text('Color', style: StyleText.labelText),
-                          const SizedBox(width: 12),
-                          Container(
-                            width: 72,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: color,
-                              borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: ColorCode.borderSubtle),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 14),
-                      Text(
-                        'Coordinate  (${localPosition.dx.toStringAsFixed(2)}, ${localPosition.dy.toStringAsFixed(2)})',
-                        style: StyleText.normalText,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'R ${colorChannel8(color, 'red')}   G ${colorChannel8(color, 'green')}   B ${colorChannel8(color, 'blue')}',
-                        style: StyleText.normalText.copyWith(color: ColorCode.textMuted),
-                      ),
-                      const Spacer(),
-                      Text(
-                        'Concentration of nutrient in Samples',
-                        style: StyleText.labelText,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${(result * 2).toStringAsFixed(2)} mg/kg',
-                        style: StyleText.titleText.copyWith(color: ColorCode.appBarColor),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
+      body: RepaintBoundary(
+        key: _printKey,
+        child: Column(
+          children: [
+            buildReportHeader(report.name, report.evaluate),
+            Expanded(child: _buildImageArea()),
+            _buildResultPanel(),
+          ],
         ),
       ),
     );

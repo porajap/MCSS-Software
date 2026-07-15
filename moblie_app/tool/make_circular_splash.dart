@@ -3,7 +3,8 @@ import 'dart:math' as math;
 
 import 'package:image/image.dart';
 
-/// Creates a circular splash logo on the brown splash background.
+/// Circular splash logo with enough inner margin so long text
+/// ("CHEMICAL SENSOR") stays inside Android 12's circular icon mask.
 void main() {
   final sourcePath = File('lib/assets/images/logo_app.jpg');
   final outPath = File('lib/assets/images/logo_splash_circle.png');
@@ -16,43 +17,45 @@ void main() {
   }
 
   const canvasSize = 1152;
-  // Slightly under full size so Android's circular mask retains margins.
-  const diameter = 980;
+  // Android 12 splash icon safe zone is ~66% of diameter.
+  // Keep logo below that so side letters are not clipped.
+  const logoScale = 0.52;
 
   final canvas = Image(width: canvasSize, height: canvasSize);
-  // Match splash brown #795548
   fill(canvas, color: ColorRgb8(0x79, 0x55, 0x48));
 
+  final logoSize = (canvasSize * logoScale).round();
   final resized = copyResize(
     src,
-    width: diameter,
-    height: diameter,
+    width: logoSize,
+    height: logoSize,
     interpolation: Interpolation.average,
   );
 
-  final offset = ((canvasSize - diameter) / 2).round();
+  final offset = ((canvasSize - logoSize) / 2).round();
   final center = canvasSize / 2.0;
-  final radius = diameter / 2.0;
+  // Soft circle slightly larger than logo, for a clean circular silhouette.
+  final radius = logoSize / 2.0 + 6;
 
-  for (var y = 0; y < diameter; y++) {
-    for (var x = 0; x < diameter; x++) {
-      final dx = (x + 0.5) - radius;
-      final dy = (y + 0.5) - radius;
+  for (var y = 0; y < logoSize; y++) {
+    for (var x = 0; x < logoSize; x++) {
+      final dx = (offset + x + 0.5) - center;
+      final dy = (offset + y + 0.5) - center;
       if (math.sqrt(dx * dx + dy * dy) <= radius) {
         canvas.setPixel(offset + x, offset + y, resized.getPixel(x, y));
       }
     }
   }
 
-  // Soft edge anti-alias against brown
+  // Anti-alias circle edge into brown background.
   for (var y = 0; y < canvasSize; y++) {
     for (var x = 0; x < canvasSize; x++) {
       final dx = (x + 0.5) - center;
       final dy = (y + 0.5) - center;
       final d = math.sqrt(dx * dx + dy * dy);
       final edge = d - radius;
-      if (edge > 0 && edge < 1.5) {
-        final t = (edge / 1.5).clamp(0.0, 1.0);
+      if (edge > 0 && edge < 1.8) {
+        final t = (edge / 1.8).clamp(0.0, 1.0);
         final p = canvas.getPixel(x, y);
         final r = (p.r * (1 - t) + 0x79 * t).round();
         final g = (p.g * (1 - t) + 0x55 * t).round();
@@ -63,5 +66,5 @@ void main() {
   }
 
   outPath.writeAsBytesSync(encodePng(canvas));
-  stdout.writeln('Wrote ${outPath.path} (${canvasSize}x$canvasSize, diameter=$diameter)');
+  stdout.writeln('Wrote ${outPath.path} (scale=$logoScale)');
 }

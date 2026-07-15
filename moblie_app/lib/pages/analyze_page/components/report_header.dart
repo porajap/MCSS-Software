@@ -28,7 +28,7 @@ Widget buildReportHeader(String name, String evaluate) {
 
   return Container(
     width: double.infinity,
-    padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+    padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
     decoration: const BoxDecoration(
       border: Border(
         bottom: BorderSide(color: ColorCode.divider, width: 1),
@@ -39,10 +39,10 @@ Widget buildReportHeader(String name, String evaluate) {
       children: [
         Text(
           PreferenceKey.reportTitle,
-          style: StyleText.titleText,
+          style: StyleText.titleText.copyWith(fontSize: 15),
           textAlign: TextAlign.left,
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 8),
         metaRow(PreferenceKey.nameTitle, name != '' ? name : '-'),
         metaRow(PreferenceKey.evaluateTitle, evaluate),
         metaRow(PreferenceKey.dateTitle, DateFormat.yMd().add_jm().format(reportDate)),
