@@ -64,8 +64,11 @@ class _ReportPageState extends State<ReportPage> {
     await extractColors();
     await conStandard();
     await cropImage();
-    minimum = widget.report.calSample().reduce(min);
-    maximum = widget.report.calSample().reduce(max);
+    // Y-axis covers both standard and sample intensity so the standard line is fully visible.
+    final List<double> sampleIntensity = widget.report.calSample();
+    final List<double> standardIntensity = widget.report.calStandard();
+    minimum = [...sampleIntensity, ...standardIntensity].reduce(min);
+    maximum = [...sampleIntensity, ...standardIntensity].reduce(max);
     if (!mounted) return;
     waiting = false;
     setState(() {});
@@ -138,12 +141,17 @@ class _ReportPageState extends State<ReportPage> {
     return getData(type == PreferenceKey.standard ? calCon() : result, type == PreferenceKey.standard ? widget.report.calStandard() : widget.report.calSample());
   }
 
-  List<ChartData> calLine() {
-    List<double> sample = [for (double i = minimum; i <= maximum; i++) i];
-    result = calConcentrate(equation, sample);
+  /// Regression line fitted from Standard (intensity → concentration),
+  /// drawn across the Standard intensity range (not Sample).
+  List<ChartData> calStandardLine() {
+    final List<double> standardIntensity = widget.report.calStandard();
+    final double minIntensity = standardIntensity.reduce(min);
+    final double maxIntensity = standardIntensity.reduce(max);
+    final List<double> intensityRange = [for (double i = minIntensity; i <= maxIntensity; i++) i];
+    final List<double> concentrationRange = calConcentrate(equation, intensityRange);
 
-    logger.d('#calLine complete');
-    return getData(result, sample);
+    logger.d('#calStandardLine complete');
+    return getData(concentrationRange, intensityRange);
   }
 
   Widget _showChart() {
@@ -171,8 +179,26 @@ class _ReportPageState extends State<ReportPage> {
                     textStyle: StyleText.labelText,
                   ),
                   primaryXAxis: widget.report.evaluate == PreferenceKey.potassium
-                      ? NumericAxis(minimum: 0, interval: 10, maximum: 30, majorGridLines: const MajorGridLines(width: 0.4))
-                      : NumericAxis(minimum: 0, interval: 0.5, maximum: 5, majorGridLines: const MajorGridLines(width: 0.4)),
+                      ? NumericAxis(
+                          minimum: 0,
+                          interval: 10,
+                          maximum: 30,
+                          majorGridLines: const MajorGridLines(width: 0.4),
+                          title: AxisTitle(
+                            text: 'concentration of nutrient (µg/mL)',
+                            textStyle: StyleText.labelText,
+                          ),
+                        )
+                      : NumericAxis(
+                          minimum: 0,
+                          interval: 0.5,
+                          maximum: 5,
+                          majorGridLines: const MajorGridLines(width: 0.4),
+                          title: AxisTitle(
+                            text: 'concentration of nutrient (µg/mL)',
+                            textStyle: StyleText.labelText,
+                          ),
+                        ),
                   legend: Legend(
                     isVisible: true,
                     position: LegendPosition.bottom,
@@ -184,6 +210,10 @@ class _ReportPageState extends State<ReportPage> {
                     maximum: maximum,
                     interval: 5,
                     majorGridLines: const MajorGridLines(width: 0.4),
+                    title: AxisTitle(
+                      text: 'intensity of color',
+                      textStyle: StyleText.labelText,
+                    ),
                   ),
                   series: <CartesianSeries>[
                     ScatterSeries<ChartData, double>(
@@ -203,12 +233,11 @@ class _ReportPageState extends State<ReportPage> {
                       yValueMapper: (ChartData data, _) => data.y,
                     ),
                     LineSeries<ChartData, double>(
-                      legendItemText:
-                          'y = ${equation.coefficient(1).toStringAsFixed(3)}x+${equation.coefficient(0).toStringAsFixed(3)} (R^2 =${equation.R2().toStringAsFixed(3)})',
+                      legendItemText: 'y = ${equation.coefficient(1).toStringAsFixed(3)}x+${equation.coefficient(0).toStringAsFixed(3)} (R^2 =${equation.R2().toStringAsFixed(3)})',
                       enableTooltip: true,
-                      color: ColorCode.appBarColor,
+                      color: Colors.blue,
                       width: 1.5,
-                      dataSource: calLine(),
+                      dataSource: calStandardLine(),
                       xValueMapper: (ChartData data, _) => data.x,
                       yValueMapper: (ChartData data, _) => data.y,
                     ),
