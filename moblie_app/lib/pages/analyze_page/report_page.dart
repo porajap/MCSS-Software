@@ -69,6 +69,14 @@ class _ReportPageState extends State<ReportPage> {
     final List<double> standardIntensity = widget.report.calStandard();
     minimum = [...sampleIntensity, ...standardIntensity].reduce(min);
     maximum = [...sampleIntensity, ...standardIntensity].reduce(max);
+    if (maximum <= minimum) {
+      minimum -= 1;
+      maximum += 1;
+    } else {
+      final pad = (maximum - minimum) * 0.05;
+      minimum -= pad;
+      maximum += pad;
+    }
     if (!mounted) return;
     waiting = false;
     setState(() {});
@@ -87,8 +95,9 @@ class _ReportPageState extends State<ReportPage> {
   conStandard() async {
     con = widget.report.con[widget.report.evaluate]!;
 
-    List<double> standard = widget.report.calStandard();
-    equation = calRsquare(standard, calCon());
+    // Classical fit: intensity = b + m · concentration (X=con, Y=intensity).
+    final List<double> standardIntensity = widget.report.calStandard();
+    equation = calRsquare(calCon(), standardIntensity);
     logger.d(equation);
   }
 
@@ -141,14 +150,19 @@ class _ReportPageState extends State<ReportPage> {
     return getData(type == PreferenceKey.standard ? calCon() : result, type == PreferenceKey.standard ? widget.report.calStandard() : widget.report.calSample());
   }
 
-  /// Regression line fitted from Standard (intensity → concentration),
-  /// drawn across the Standard intensity range (not Sample).
+  /// Regression line: intensity = b + m · concentration, across Standard X range.
   List<ChartData> calStandardLine() {
-    final List<double> standardIntensity = widget.report.calStandard();
-    final double minIntensity = standardIntensity.reduce(min);
-    final double maxIntensity = standardIntensity.reduce(max);
-    final List<double> intensityRange = [for (double i = minIntensity; i <= maxIntensity; i++) i];
-    final List<double> concentrationRange = calConcentrate(equation, intensityRange);
+    final List<double> cons = widget.report.con[widget.report.evaluate]!;
+    final double minC = cons.reduce(min);
+    final double maxC = cons.reduce(max);
+    const int steps = 50;
+    final List<double> concentrationRange = [];
+    final List<double> intensityRange = [];
+    for (int i = 0; i <= steps; i++) {
+      final double c = minC + (maxC - minC) * i / steps;
+      concentrationRange.add(c);
+      intensityRange.add(predictIntensity(equation, c));
+    }
 
     logger.d('#calStandardLine complete');
     return getData(concentrationRange, intensityRange);
@@ -343,10 +357,9 @@ class _ReportPageState extends State<ReportPage> {
           ]);
   }
 
-  List<List<String>> smp = [];
-
   Widget _showResult() {
-    con = con + con;
+    // 10 standard wells = two rows of the 5 known concentrations (do not mutate [con]).
+    final List<double> stdConcentrations = [...con, ...con];
 
     int i = 0;
     int j = 0;
@@ -373,7 +386,7 @@ class _ReportPageState extends State<ReportPage> {
 
                 if (index < Plate.pnpStandard.length) {
                   title = 'Std';
-                  concentrate = con[i].toStringAsFixed(2);
+                  concentrate = stdConcentrations[i].toStringAsFixed(2);
                   rgbCode = widget.report.standard[i * 5].toStringAsFixed(0);
                   i++;
                 } else {
@@ -382,7 +395,6 @@ class _ReportPageState extends State<ReportPage> {
                   title = plate.label[n] + plate.no[number].toString();
                   concentrate = (result[j] * 2).toStringAsFixed(2);
                   rgbCode = widget.report.sample[j].toStringAsFixed(0);
-                  smp.add([title, "SMP", "${widget.report.red[50 + j]}", "${widget.report.green[50 + j]}", "${widget.report.blue[50 + j]}", "-", concentrate]);
                   j++;
                 }
                 return Container(
@@ -443,15 +455,45 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   Future generateCsv() async {
+    final List<double> stdConcentrations = [...con, ...con];
     List<List<String>> std = [];
     int j = 0;
     while (j < widget.report.standard.length) {
       List label = ['B', 'C'];
       int x = j ~/ 5;
       for (int i = 0; i < 5; i++) {
-        std.add(["${x < 5 ? label[0] : label[1]}${plate.no[x % 5]}", "STD", "${widget.report.red[j]}", "${widget.report.green[j]}", "${widget.report.blue[j]}", "-", con[x].toStringAsFixed(2)]);
+        std.add([
+          "${x < 5 ? label[0] : label[1]}${plate.no[x % 5]}",
+          "STD",
+          "${widget.report.red[j]}",
+          "${widget.report.green[j]}",
+          "${widget.report.blue[j]}",
+          "-",
+          stdConcentrations[x].toStringAsFixed(2)
+        ]);
         j++;
       }
+    }
+
+    if (result.isEmpty) {
+      result = calConcentrate(equation, widget.report.calSample());
+    }
+
+    final List<List<String>> smp = [];
+    final sampleIntensity = widget.report.calSample();
+    for (int k = 0; k < sampleIntensity.length; k++) {
+      final row = k ~/ 10;
+      final col = k % 10;
+      final title = plate.label[row] + plate.no[col].toString();
+      smp.add([
+        title,
+        "SMP",
+        "${widget.report.red[50 + k]}",
+        "${widget.report.green[50 + k]}",
+        "${widget.report.blue[50 + k]}",
+        "-",
+        (result[k] * 2).toStringAsFixed(2)
+      ]);
     }
 
     List<List<String>> data = [

@@ -8,31 +8,46 @@ class ChartData {
   final double y;
 }
 
-PolyFit calRsquare(List<double> x, List<double> y) {
-  var equation = PolyFit(Array(x), Array(y), 1);
-  return equation;
+/// Classical calibration: intensity (y) vs concentration (x).
+/// Fit: intensity = b + m · concentration
+PolyFit calRsquare(List<double> concentration, List<double> intensity) {
+  return PolyFit(Array(concentration), Array(intensity), 1);
 }
 
-List<double> calConcentrate(PolyFit equation, List<double> sample) {
+/// Inverse of intensity = b + m · concentration.
+double predictConcentration(PolyFit equation, double intensity) {
+  final double b = equation.coefficient(0);
+  final double m = equation.coefficient(1);
+  if (m.abs() < 1e-12) {
+    return 0;
+  }
+  return (intensity - b) / m;
+}
+
+double predictIntensity(PolyFit equation, double concentration) {
+  final double b = equation.coefficient(0);
+  final double m = equation.coefficient(1);
+  return b + m * concentration;
+}
+
+List<double> calConcentrate(PolyFit equation, List<double> sampleIntensity) {
   List<double> result = [];
   try {
-    for (final code in sample) {
-      result.add(equation.predict(code));
+    for (final intensity in sampleIntensity) {
+      result.add(predictConcentration(equation, intensity));
     }
-
-    var length = result.length;
-    logger.d('#concentrate: $length');
+    logger.d('#concentrate: ${result.length}');
   } catch (e) {
     logger.e('Fail: cal concentrate');
   }
   return result;
 }
 
-List<ChartData> getData(List<double> result, List<double> rgbCode) {
+List<ChartData> getData(List<double> concentration, List<double> intensity) {
   List<ChartData> data = [];
   try {
-    for (int i = 0; i < result.length; i++) {
-      data.add(ChartData(result[i], rgbCode[i]));
+    for (int i = 0; i < concentration.length; i++) {
+      data.add(ChartData(concentration[i], intensity[i]));
     }
   } catch (e) {
     logger.e('Fail: generate ChartData');

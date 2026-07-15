@@ -98,27 +98,28 @@ class _SummaryPageState extends State<SummaryPage> {
   Future<void> conStandard() async {
     con = widget.report.con[widget.report.evaluate]!;
 
-    List<double> standard = widget.report.calStandard();
-    equation = calRsquare(standard, calCon());
+    // Classical fit: intensity = b + m · concentration (X=con, Y=intensity).
+    final List<double> standardIntensity = widget.report.calStandard();
+    equation = calRsquare(calCon(), standardIntensity);
     logger.d(equation);
   }
 
   double calConcentrate(PolyFit equation, Color colorCode) {
-    double sample = 0;
     try {
       final r = colorChannel8(colorCode, 'red').toDouble();
       final g = colorChannel8(colorCode, 'green').toDouble();
       final b = colorChannel8(colorCode, 'blue').toDouble();
+      double intensity = 0;
       if (widget.report.evaluate == PreferenceKey.phosphate) {
-        sample = r;
+        intensity = r;
       }
       if (widget.report.evaluate == PreferenceKey.nitrate) {
-        sample = g;
+        intensity = g;
       }
       if (widget.report.evaluate == PreferenceKey.potassium) {
-        sample = (r + g + b) / 3.0;
+        intensity = (r + g + b) / 3.0;
       }
-      result = equation.predict(sample);
+      result = predictConcentration(equation, intensity);
     } catch (e) {
       logger.e('Fail: cal concentrate');
       result = 0;
