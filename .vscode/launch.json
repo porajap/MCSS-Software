@@ -1,0 +1,28 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "moblie_app",
+            "cwd": "moblie_app",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "moblie_app (profile mode)",
+            "cwd": "moblie_app",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "moblie_app (release mode)",
+            "cwd": "moblie_app",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}

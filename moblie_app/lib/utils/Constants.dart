@@ -16,23 +16,22 @@ class PreferenceKey {
   static const String nitrate = 'Nitrate';
   static const String potassium = 'Potassium';
 
-  static const String h_well_index = 'well_index';
-  static const String h_std_smp = 'STD/SMP';
-  static const String h_color_R = 'color_R';
-  static const String h_color_G = 'color_G';
-  static const String h_color_B = 'color_B';
-  static const String h_HSV = 'HSV';
-  static const String h_saturation = 'Saturation';
+  static const String hWellIndex = 'well_index';
+  static const String hStdSmp = 'STD/SMP';
+  static const String hColorR = 'color_R';
+  static const String hColorG = 'color_G';
+  static const String hColorB = 'color_B';
+  static const String hHsv = 'HSV';
+  static const String hSaturation = 'Saturation';
 
-  static const String reportTitle =
-      'รายงานผลการวิเคราะห์ธาตุอาหารในดินจากภาพถ่าย';
-  static const String nameTitle = 'ชื่อการทดลอง: ';
-  static const String evaluateTitle = 'ธาตุอาหารในดิน: ';
-  static const String dateTitle = 'วันที่ส่งภาพเพื่อวิเคราะห์: ';
+  static const String reportTitle = 'Image-Based Soil Nutrient Analysis Report';
+  static const String nameTitle = 'Experiment Name: ';
+  static const String evaluateTitle = 'Soil Nutrient: ';
+  static const String dateTitle = 'Analysis Date: ';
 
-  static const String inputForm = 'select evaluate';
-  static const String noti = 'กรุณากรอกข้อมูลให้ครบ';
-  static const String analyzTap = 'วิเคราะห์แบบคลิ๊กเลือก';
-  static const String analyzAll = 'วิเคราะห์แบบรวม';
-  static const String imageTitle = 'รูปภาพที่วิเคราะห์: ';
+  static const String inputForm = 'Select evaluate';
+  static const String noti = 'Please fill in all information';
+  static const String analyzeTap = 'Point Analysis';
+  static const String analyzeAll = 'Area Analysis';
+  static const String imageTitle = 'Image to analyze: ';
 }
