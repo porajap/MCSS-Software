@@ -20,7 +20,7 @@ import '../../utils/constants.dart';
 import '../../utils/plate_config.dart';
 import '../../utils/text_config.dart';
 import 'components/graph_generator.dart';
-import 'components/rgb_generator.dart';
+import 'components/plate_rgb_extractor.dart';
 import 'components/report_header.dart';
 
 class ReportPage extends StatefulWidget {
@@ -36,7 +36,6 @@ class ReportPage extends StatefulWidget {
 class _ReportPageState extends State<ReportPage> {
   final GlobalKey<State<StatefulWidget>> _printKey = GlobalKey();
   bool waiting = true;
-  Map<String, List<Color>>? colors;
   List<int> red = [];
   List<int> green = [];
   List<int> blue = [];
@@ -121,12 +120,10 @@ class _ReportPageState extends State<ReportPage> {
 
   Future<void> extractColors() async {
     imageBytes = await _readFileByte(widget.imageFile);
-    colors = await compute(extractPixelsColors, imageBytes);
-    colors!.forEach((key, value) {
-      red.addAll(getColorValue(colors![key]!, 'red'));
-      green.addAll(getColorValue(colors![key]!, 'green'));
-      blue.addAll(getColorValue(colors![key]!, 'blue'));
-    });
+    final PlateRgbData rgb = await compute(extractPixelsRgb, imageBytes!);
+    red = rgb.red;
+    green = rgb.green;
+    blue = rgb.blue;
     widget.report.red = red;
     widget.report.green = green;
     widget.report.blue = blue;

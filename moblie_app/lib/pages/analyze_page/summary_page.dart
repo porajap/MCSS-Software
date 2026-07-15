@@ -3,7 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:image_pixels/image_pixels.dart';
 import 'package:moblie_app/utils/text_config.dart';
 import 'package:scidart/numdart.dart';
@@ -14,6 +14,7 @@ import '../../utils/color_config.dart';
 import '../../utils/constants.dart';
 import 'components/graph_generator.dart';
 import 'components/pdf_print_generate.dart';
+import 'components/plate_rgb_extractor.dart';
 import 'components/rgb_generator.dart';
 import 'components/report_header.dart';
 
@@ -31,8 +32,6 @@ class _SummaryPageState extends State<SummaryPage> {
   final GlobalKey<State<StatefulWidget>> _printKey = GlobalKey();
   bool waiting = true;
   late final FileImage fileImage;
-  Uint8List? imageBytes;
-  Map<String, List<Color>>? colors;
   List<int> red = [];
   List<int> green = [];
   List<int> blue = [];
@@ -45,60 +44,62 @@ class _SummaryPageState extends State<SummaryPage> {
 
   @override
   void initState() {
-    FlutterNativeSplash.remove();
-    delay();
     super.initState();
+    fileImage = FileImage(widget.imageFile!);
+    // Start after first frame so the Loading spinner can paint/animate.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _runAnalysis());
   }
 
-  Future<void> delay() async {
-    // Run analysis immediately — no artificial wait.
-    await extractColors();
-    await conStandard();
-    fileImage = FileImage(widget.imageFile!);
+  Future<void> _yieldUi() async {
+    await SchedulerBinding.instance.endOfFrame;
+    await Future<void>.delayed(Duration.zero);
+  }
+
+  Future<void> _runAnalysis() async {
+    try {
+      await _yieldUi();
+
+      final Uint8List imageBytes = await widget.imageFile!.readAsBytes();
+      await _yieldUi();
+
+      // Heavy decode/sample off the UI isolate; returns plain ints (cheap to transfer).
+      final PlateRgbData rgb = await compute(extractPixelsRgb, imageBytes);
+      red = rgb.red;
+      green = rgb.green;
+      blue = rgb.blue;
+      widget.report.red = red;
+      widget.report.green = green;
+      widget.report.blue = blue;
+
+      await _yieldUi();
+      _fitStandard();
+
+      // Warm image decode before hiding spinner to avoid a second stall.
+      if (mounted) {
+        await precacheImage(fileImage, context);
+      }
+    } catch (e, st) {
+      logger.e('Fail: SummaryPage analysis', error: e, stackTrace: st);
+    }
+
     if (!mounted) return;
     setState(() {
       waiting = false;
     });
   }
 
-  Future<void> extractColors() async {
-    imageBytes = await _readFileByte(widget.imageFile);
-    colors = await compute(extractPixelsColors, imageBytes);
-    for (final key in colors!.keys) {
-      red.addAll(getColorValue(colors![key]!, 'red'));
-      green.addAll(getColorValue(colors![key]!, 'green'));
-      blue.addAll(getColorValue(colors![key]!, 'blue'));
-    }
-    widget.report.red = red;
-    widget.report.green = green;
-    widget.report.blue = blue;
-  }
-
-  Future<Uint8List> _readFileByte(File? filePath) async {
-    try {
-      final bytes = await filePath!.readAsBytes();
-      logger.d('reading of bytes is completed');
-      return bytes;
-    } catch (onError) {
-      logger.e('Exception Error while reading image from path: $onError');
-      rethrow;
-    }
-  }
-
   List<double> calCon() {
-    List<double> con = [];
+    List<double> values = [];
     for (double i in widget.report.con[widget.report.evaluate]!) {
       for (int j = 0; j < 5; j++) {
-        con.add(i);
+        values.add(i);
       }
     }
-    return con = con + con.toList();
+    return values + values.toList();
   }
 
-  Future<void> conStandard() async {
+  void _fitStandard() {
     con = widget.report.con[widget.report.evaluate]!;
-
-    // Classical fit: intensity = b + m · concentration (X=con, Y=intensity).
     final List<double> standardIntensity = widget.report.calStandard();
     equation = calRsquare(calCon(), standardIntensity);
     logger.d(equation);
